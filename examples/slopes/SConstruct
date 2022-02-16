@@ -1,0 +1,60 @@
+#!/usr/bin/env python
+#
+# @Author : Jean-Pascal Mercier <jean-pascal.mercier@agsis.com>
+#
+# @Copyright (C) 2010 Jean-Pascal Mercier
+#
+# All rights reserved.
+#
+
+env = Environment(tools = ['Lotic'])     # Loading Lotic into SCons environment
+
+import slopes       # Importing slope API
+
+
+SQLDB       = 'testdb.sqlite'    # Database filename
+CATALOG     = 'original'        # TravelTime Catalog to use
+grid = GridDescription(env, (0, 0, 0), (64, 64, 64), 2.0, padding = 2.0) # origin, shape and spacing
+
+P_IVALUE    = 1000              # Initial Velocity in m/s
+
+# Creation of the Database Extraction plan
+fetch_plan = slopes.SQLDBFetchPlan(env, SQLDB, CATALOG,
+                                   "build/orig_etable.pickle",
+                                   "build/orig_stable.pickle")
+
+# Adding some filters on the events
+fetch_plan.set_date_filter("2010-01-01", "2010-01-31")
+fetch_plan.set_grid_filter(grid)
+
+# Building the event and station and traveltime target for P-Wave arrival
+ev_tgt = grid.transform_to_grid_coordinate('build/trans_etable.npy', fetch_plan.evnfile)
+st_tgt = grid.transform_to_grid_coordinate('build/trans_stable.npy', fetch_plan.stafile)
+
+# Creating the inversion plan and adding our velocity grid to the plan
+plan = slopes.InversionPlan2(env, ev_tgt, st_tgt)
+plan.insert_velocity_grid("P", P_IVALUE , fetch_plan.get, SHAPE, SPACING)
+
+# Description of the behavior of the prior and the post smoothing.
+POST_SMOOTHING = 3  # in meters
+
+EXPSIZE = 20
+EXPPARAM = 200
+
+INIT_PRIOR  = 1e-13
+PRIOR_RANGE = (INIT_PRIOR, INIT_PRIOR / 10.0)
+
+# Determination of the inversion parameter as exponentials
+priors = slopes.exprange(50, PRIOR_RANGE, size = EXPSIZE)
+
+for i, p in enumerate(priors):
+    plan.set_grid_inversion("one", prior = p, post_smoothing = 3)
+    plan.push_inversion("build/tomography_%d" %i) # Pushing 1 inversion
+
+
+# Telling scons which target we want to build
+env.Default(plan.vgrids[-1].values())
+
+# Using the scons timestamp combined with md5 for fast determination of
+# modified targets
+env.Decider("timestamp-md5")

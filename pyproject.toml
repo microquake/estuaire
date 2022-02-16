@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "estuaire"
+version = "0.1.0"
+description = ""
+authors = ["Jean-Pascal Mercier"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.11"
+agstd = "^1.0.1"
+eikonal = "^0.1.0"
+SCons = "^4.3.0"
+
+[tool.poetry.dev-dependencies]
+ipython = "^8.0.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

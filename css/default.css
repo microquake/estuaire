@@ -1,0 +1,40 @@
+div.element
+{
+    border-bottom: 1px solid gray;
+    width: auto;
+    margin: 0px 0px;
+    padding: 20px 20px;
+    font-size: small;
+    color: #444444;
+}
+h1
+{
+    border-bottom: 1px solid gray;
+    width: auto;
+    margin: 0px 0px;
+    padding: 10px 10px;
+    background-color: darkslategray;
+    color: white;
+    font-family:"arial";
+    font-weight:bold;
+    font-size: large;
+}
+body
+{
+    padding: 0px 0px;
+    margin: 0px 0px;
+}
+h3
+{
+    display: inline;
+    margin-left: 30px;
+}
+#footer
+{
+    font-size: x-small;
+    width: auto;
+    text-align: right;
+    padding: 5px 30px;
+    background-color: #000000;
+    color: gray;
+}
