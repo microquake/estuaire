@@ -7,8 +7,7 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.11"
-agstd = "^1.0.1"
-eikonal = "^0.1.0"
+eikonal = "^1.0.0"
 SCons = "^4.3.0"
 
 [tool.poetry.dev-dependencies]
