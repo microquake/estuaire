@@ -37,7 +37,7 @@ API Description
 
 try:
     import json
-except ImportError, e:
+except ImportError as e:
     import simplejson as json
 
 import os
@@ -117,10 +117,6 @@ class InversionDescription(object):
         self.station_time       = False
         self.event_position     = False
 
-
-
-
-
 class TreeNode(object):
     """
     Simple representation of a node in Tree
@@ -178,7 +174,8 @@ nodeattr  = ['events', 'stations', 'events']
 colnames  = ['delta_t', 'delta_t', 'position']
 
 class InversionResult(object):
-    def __init__(self, env, result, stats, A, R, pdescription, D, P, I, idescription, iroot):
+    def __init__(self, env, result, stats, A, R, pdescription, D, P, I,
+                 idescription, iroot):
         self.result_vector          = result
         self.stats                  = stats
         self.frechet_matrix         = A
@@ -192,9 +189,10 @@ class InversionResult(object):
         self.env                    = env
 
     def totuple(self):
-        return ((self.result_vector, self.stats), \
-                (self.frechet_matrix, self.residual_vector, self.pdescription), \
-                (self.regularization_matrix, self.prior_matrix, self.initial_vector))
+        return ((self.result_vector, self.stats),
+                (self.frechet_matrix, self.residual_vector, self.pdescription),
+                (self.regularization_matrix, self.prior_matrix,
+                 self.initial_vector))
 
     def update_tables(self, node):
         """
@@ -246,19 +244,26 @@ class InversionResult(object):
 
             gname = gid + ".npy"
             output = os.path.join(self.iroot, gname)
-            goutput = output if post_smoothing is None else os.path.join(dirname, "unsmoothed_" + gname)
+            goutput = output if post_smoothing is None else \
+                os.path.join(dirname, "unsmoothed_" + gname)
 
-            next_grid = env.UpdateGrid([goutput], [env.Value(gid), self.result_vector, vgrid.tgt, self.pdescription])[0]
+            next_grid = env.UpdateGrid([goutput], [env.Value(gid),
+                                                   self.result_vector,
+                                                   vgrid.tgt,
+                                                   self.pdescription])[0]
             if post_smoothing is not None:
                 next_grid = env.GaussianSmoothing([output],
-                                                  [next_grid, env.Value(post_smoothing)])[0]
+                                                  [next_grid,
+                                                   env.Value(
+                                                       post_smoothing)])[0]
 
             next_eik_tgt = []
             for tt in vgrid.ttime_tgts:
                 basename = os.path.basename(str(tt))
                 ebasename = etemplate.substitute(basename = basename)
 
-                eoutput = os.path.join(self.iroot, env['FORWARD_ROOT'], ebasename)
+                eoutput = os.path.join(self.iroot, env['FORWARD_ROOT'],
+                                       ebasename)
 
                 etgt = env.EikonalSolver2([eoutput], [next_grid, tt])[0]
                 env.Depends(etgt, [node.events, node.stations])
@@ -285,8 +290,10 @@ class InversionResult(object):
                 fbasename = ftemplate.substitute(basename = basename)
                 rbasename = rtemplate.substitute(basename = basename)
 
-                foutput = os.path.join(self.iroot, env['FORWARD_ROOT'], fbasename)
-                routput = os.path.join(self.iroot, env['FORWARD_ROOT'], rbasename)
+                foutput = os.path.join(self.iroot, env['FORWARD_ROOT'],
+                                       fbasename)
+                routput = os.path.join(self.iroot, env['FORWARD_ROOT'],
+                                       rbasename)
 
                 ftgt = env.Sensivity([foutput],
                                      [vgrid.tgt, etgt, tt, env.Value(gid)])[0]
@@ -316,7 +323,8 @@ class QuadraticBuilderBase(object):
         self.env                        = env
         self.iroot                      = iroot
 
-    def inverse(self, weighting, gtol = 1e-10, prior_normalization = False, itype = 'linearcg'):
+    def inverse(self, weighting, gtol = 1e-10, prior_normalization = False,
+                itype = 'linearcg'):
         """
         This is the actual building of the Quadratic Problem (Ax - r)^2 = 0.
         This also produce a dictionary of description describing the real
@@ -341,11 +349,13 @@ class QuadraticBuilderBase(object):
         normed_P_file = os.path.join(dirname, 'normed_P.pickle')
 
         A, R, description = env.BuildQuadratic([A_file, R_file, desc_file],
-                                            [env.Value(self.columns)] + self.sensivity)
+                                            [env.Value(self.columns)] +
+                                               self.sensivity)
 
         if prior_normalization:
             priors = env.NormalizePrior([normed_P_file],
-                                        [description, A, env.Value(self.columns)] + self.prior)
+                                        [description, A,
+                                         env.Value(self.columns)] + self.prior)
         else:
             priors = self.prior
 
@@ -355,10 +365,13 @@ class QuadraticBuilderBase(object):
         I = env.BuildBlkVector([I_file], [desc_file] + self.initial)[0]
 
         result, istats = self.env.CGInverseProblem([result_file, stats_file],
-                                                   [A, P, D, I, env.Value(weighting),
-                                                    env.Value(gtol), env.Value(itype)])
+                                                   [A, P, D, I,
+                                                    env.Value(weighting),
+                                                    env.Value(gtol),
+                                                    env.Value(itype)])
 
-        return InversionResult(env, result, istats, A, R, description, D, P, I, self.idescription, self.iroot)
+        return InversionResult(env, result, istats, A, R, description, D, P, I,
+                               self.idescription, self.iroot)
 
 
 class QuadraticBuilder(QuadraticBuilderBase):
@@ -379,11 +392,13 @@ class QuadraticBuilder(QuadraticBuilderBase):
         """
         for c, nattr, col in zip(frenames, nodeattr, colnames):
             infile = getattr(self.node, nattr)
-            if not isinstance(self.idescription[c], bool) or self.idescription[c]:
+            if not isinstance(self.idescription[c], bool) or\
+                    self.idescription[c]:
                 prior = self.idescription[c]
                 column_output = os.path.join(self.iroot, c + ".npy")
                 column_vect = self.env.ExtractColumn([column_output],
-                                                [infile, self.env.Value(col)])[0]
+                                                [infile,
+                                                 self.env.Value(col)])[0]
 
                 self.columns.append(c)
                 self.initial.append(column_vect)
@@ -398,7 +413,8 @@ class QuadraticBuilder(QuadraticBuilderBase):
         is way faster, currently the smoothing parameter is ignored and
         always filled with zeros.
         """
-        for gid, prior, smoothing, post_smoothing in self.idescription['grids']:
+        for gid, prior, smoothing, post_smoothing in \
+                self.idescription['grids']:
             grid = self.node.vgrids[gid].tgt
             naked_gridfile = os.path.join(self.iroot, "%s_data.npy" % gid)
             naked_grid = self.env.ExtractData([naked_gridfile], [grid])
@@ -417,8 +433,10 @@ class QuadraticBuilder(QuadraticBuilderBase):
                 for f, tt in zip(vgrid.frechet_tgts, vgrid.ttime_tgts):
                     basename = os.path.basename(str(tt))
                     dbasename = dtemplate.substitute(basename = basename)
-                    doutput = os.path.join(self.iroot, self.env['FORWARD_ROOT'], dbasename)
-                    new_fre_tgt.append(self.env.DoubleDifference([doutput], [f]))
+                    doutput = os.path.join(self.iroot,
+                                           self.env['FORWARD_ROOT'], dbasename)
+                    new_fre_tgt.append(self.env.DoubleDifference(
+                        [doutput], [f]))
                 fre_tgt = new_fre_tgt
             self.sensivity.extend(fre_tgt)
 
@@ -487,7 +505,8 @@ class InversionPlan(object):
         self.env                = env
 
 
-        plan_action = Action(self.__plan_infos__, strfunction = lambda x, y, z : "")
+        plan_action = Action(self.__plan_infos__,
+                             strfunction=lambda x, y, z : "")
         info_tgt = self.env.Command([env.Value("")], [], plan_action)
         env.AlwaysBuild(info_tgt)
         env.Default(info_tgt)
@@ -523,7 +542,8 @@ class InversionPlan(object):
 
     def insert_velocity_grid(self, gid, grid, tt_tgt, root = 'build', **kw):
         """
-        Insert a Velocity grid into the Inversion Plan using the grid description
+        Insert a Velocity grid into the Inversion Plan using the grid
+         description
         for the grid parameters
 
         :param gid: Grid Identifier
@@ -539,19 +559,25 @@ class InversionPlan(object):
             basename = os.path.basename(str(tt))
             filename = os.path.join(root, gid, basename)
             tgt = self.env.UpdateAndFilterTT([filename],
-                                        [tt, self.current.events, self.current.stations, grid, self.env.Value(1)])[0]
+                                        [tt, self.current.events,
+                                         self.current.stations, grid,
+                                         self.env.Value(1)])[0]
             filtered_tt.append(tgt)
         tt_tgt = filtered_tt
 
         eik_tgt, fre_tgt = self.env.ForwardModelling2(tt_tgt, grid, gid,
-                                                      os.path.join(root, gid, "eikonal_${basename}"),
-                                                      os.path.join(root, gid, "frechet_${basename}"),)
+                                                      os.path.join(root, gid,
+                                                                   "eikonal_${basename}"),
+                                                      os.path.join(root, gid,
+                                                                   "frechet_${basename}"),)
 
         rayroot = os.path.join(root, gid)
 
-        ray_tgt = [self.__raytrace__(grid, e, tt, root) for e, tt in zip(eik_tgt, tt_tgt)]
+        ray_tgt = [self.__raytrace__(grid, e, tt, root)
+                   for e, tt in zip(eik_tgt, tt_tgt)]
 
-        self.current.vgrids[gid] = VelocityContainer(grid, eik_tgt, fre_tgt, tt_tgt, ray_tgt)
+        self.current.vgrids[gid] = VelocityContainer(grid, eik_tgt, fre_tgt,
+                                                     tt_tgt, ray_tgt)
 
         self.__push_report__(gid)
 
@@ -560,7 +586,8 @@ class InversionPlan(object):
 
 
 
-    def set_grid_inversion(self, gid, prior = 1, regularization = 0, post_smoothing = None):
+    def set_grid_inversion(self, gid, prior = 1, regularization = 0,
+                           post_smoothing = None):
         """
         Add/Override the velocity into the next inversion iteration with the
         given prior, regularization and post smoothing.
@@ -576,7 +603,8 @@ class InversionPlan(object):
 
         :returns: None
         """
-        self.current.idescription['grids'].append((gid, prior, regularization, post_smoothing))
+        self.current.idescription['grids'].append((gid, prior, regularization,
+                                                   post_smoothing))
 
     def set_double_difference(self, dd = True):
         """
@@ -600,7 +628,8 @@ class InversionPlan(object):
 
     def __get_double_difference__(self):
         self.current.idescription['double_difference']
-    double_difference = property(__get_double_difference__, set_double_difference)
+    double_difference = property(__get_double_difference__,
+                                 set_double_difference)
 
     def set_event_time(self, prior):
         """

@@ -204,7 +204,7 @@ def generate(env):
 
 
     def InversionReportAction(source, target, env):
-        print source[0], [str(t) for t in target]
+        print(source[0], [str(t) for t in target])
         statfile = str(source[0])
         filename = str(target[0])
         graphfile = str(target[1])
@@ -222,7 +222,7 @@ def generate(env):
         html = element_template.substitute(target = str(source[0]),
                                            date = str(dtime),
                                            rest = imgline)
-        print filename
+        print(filename)
         with open(filename, 'w') as f:
             f.write(html)
 
@@ -285,7 +285,7 @@ if __name__ == '__main__':
     class Simple(resource.Resource):
         isLeaf = True
         def render_GET(self, request):
-            print request.uri
+            print(request.uri)
             if request.uri == "/":
                 return header + "\n".join(divs) + footer
             else:

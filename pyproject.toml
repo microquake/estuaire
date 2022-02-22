@@ -7,8 +7,11 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.11"
-eikonal = "^1.0.0"
 SCons = "^4.3.0"
+#eikonal = {path='../eikonal'}
+ipython = "^8.0.1"
+dateutils = "^0.6.12"
+matplotlib = "^3.5.1"
 
 [tool.poetry.dev-dependencies]
 ipython = "^8.0.1"

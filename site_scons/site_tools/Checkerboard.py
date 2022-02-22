@@ -60,7 +60,7 @@ def CheckerboardLikeAction(target, source, env):
            "--bgvel", str(bgvel), "--output", output, "--sigma", str(sigma), "--origin",
            '"%s"' % ",".join(map(str, grid.origin))]
 
-    print cmd
+    print(cmd)
 
     if len(source) > 4:
         cmd += ['--percvel', str(source[4].value)]

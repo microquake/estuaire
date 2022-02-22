@@ -10,7 +10,7 @@ __doc__ = """
 
 try:
     import json
-except ImportError, e:
+except ImportError as e:
     import simplejson as json
 
 import SCons
@@ -24,6 +24,7 @@ import numpy as np
 import pickle
 
 import logger
+
 
 def CreateBlockMatrix(ffiles, col):
     coldict = dict(zip(col, range(len(col))))

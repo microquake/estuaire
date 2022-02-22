@@ -12,12 +12,14 @@ from logging import INFO, DEBUG, WARNING, ERROR, CRITICAL
 structured  = logging.getLogger("structured")
 tools       = logging.getLogger("Tools")
 
-def default_strfun(tool = ""):
+
+def default_strfun(tool=""):
     def wrapper(target, source, executor):
         if tools.isEnabledFor(logging.INFO):
             tools.info("%s - %s" % (str.center(tool, 20), str(target[0])))
         if tools.isEnabledFor(logging.DEBUG):
-            tools.debug("%s - %s, %s" % (tool, str([str(t) for t in target]), str([str(s) for s in source])))
+            tools.debug("%s - %s, %s" % (tool, str([str(t) for t in target]),
+                                         str([str(s) for s in source])))
     return wrapper
 
 # LOGGER CONFIGURATION

@@ -18,6 +18,7 @@ import pickle
 import logger
 import escripts
 
+
 def EikonalSolver2(source, target, env):
     """
     :source 0: Velocity Grid
@@ -37,7 +38,6 @@ def EikonalSolver2(source, target, env):
     cmd = [escripts.EIKONAL_SOLVER, "--velocity", velocityfile, "--seeds",
            '"%s"' % ",".join(strseed), "--output",
            str(target[0])]
-
 
     return subprocess.Popen(cmd).wait()
 

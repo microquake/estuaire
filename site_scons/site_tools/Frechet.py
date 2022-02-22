@@ -15,6 +15,7 @@ import subprocess
 import logger
 import escripts
 
+
 def Sensivity(source, target, env):
     """
     :source 0: Velocity Grid
@@ -32,12 +33,14 @@ def Sensivity(source, target, env):
     output = str(target[0])
 
     cmd = [escripts.FRECHET_DERIVATIVES, "--arrival", arrival, "--velocity",
-           velocity, "--grid_id", grid_id, "--output", output,  "--traveltime", ttfile]
+           velocity, "--grid_id", grid_id, "--output", output,  "--traveltime",
+           ttfile]
 
     if len(source) > 4:
         cmd.extend(["--h", source[4].value])
 
     return subprocess.Popen(cmd).wait()
+
 
 def CrossSensivity(source, target, env):
     """
@@ -56,7 +59,6 @@ def CrossSensivity(source, target, env):
            "--grid_id", str(source[3])]
 
     return subprocess.Popen(cmd).wait()
-
 
 
 def generate(env):
