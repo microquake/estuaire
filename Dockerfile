@@ -10,7 +10,7 @@ COPY . /estuaire
 RUN apt-get update \
     && apt-get install -y python3.9 python3-pip python3.9-dev \
     && ln -s /usr/bin/python3.9 /usr/bin/python \
-    && apt install -y curl \
+#    && apt install -y curl \
 #    && curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py \
     && apt install python3.9-venv \
     && python3.9 -m venv /venv/estuaire \
@@ -18,28 +18,13 @@ RUN apt-get update \
     && pip install poetry \
     && poetry config virtualenvs.create false --local \
     && apt install git -y \
-    && git clone https://github.com/microquake/estuaire.git \
-    && cd /estuaire && git submodule init \
+#    && git clone https://github.com/microquake/estuaire.git \
+    && cd /estuaire && git submodule init && poetry install\
     && cd libraries/eikonal && make clean && make \
     && cp bin/* /venv/estuaire/bin/. \
-    && cd ../.. && poetry install
-
-
-#    && git clone https://github.com/microquake/eikonal.git \
-#    && pip install mako cython numpy scipy\
-#    && cd eikonal && make clean && make \
-#    && cp bin/* /venv/estuaire/bin/. \
-#    && poetry install \
-#    && cd ../estuaire && pip install scons ipython \
-#    && cd / && git clone https://github.com/microquake/agstd.git  \
-#    && cd /agstd && poetry install\
-#    && cd /estuaire \
-#    && chmod +x entrypoint.sh
-#    && pip install ipython \
-
-#RUN ./estuaire/entrypoint.sh \
-#    && git clone https://github.com/microquake/agstd.git \
-#    && cd agstd && poetry install
+    && cd ../.. && poetry install \
+    && cd /estuaire \
+    && chmod +x entrypoint.sh
 
 ENTRYPOINT ["./estuaire/entrypoint.sh"]
 
