@@ -19,7 +19,6 @@ numpy = "^1.22.2"
 scipy = "^1.8.0"
 eikonal = {path = 'libraries/eikonal', develop = true}
 agstd = {path = 'libraries/agstd', develop = true}
-site_scons = {path = 'site_scons', develop = true}
 
 [tool.poetry.dev-dependencies]
 ipython = "^8.0.1"
