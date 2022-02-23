@@ -6,7 +6,7 @@ authors = ["Jean-Pascal Mercier"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.11"
+python = ">=3.9,<3.11"
 SCons = "^4.3.0"
 #eikonal = {path='../eikonal'}
 ipython = "^8.0.1"
@@ -19,6 +19,7 @@ numpy = "^1.22.2"
 scipy = "^1.8.0"
 eikonal = {path = 'libraries/eikonal', develop = true}
 agstd = {path = 'libraries/agstd', develop = true}
+tables = "^3.7.0"
 
 [tool.poetry.dev-dependencies]
 ipython = "^8.0.1"
