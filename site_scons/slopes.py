@@ -583,7 +583,7 @@ class InversionPlan(object):
 
     insert_velocity_grid_desc = insert_velocity_grid
 
-    def set_grid_inversion(self, gid, prior==1, regularization=0,
+    def set_grid_inversion(self, gid, prior=1, regularization=0,
                            post_smoothing=None):
         """
         Add/Override the velocity into the next inversion iteration with the

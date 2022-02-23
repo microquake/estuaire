@@ -26,6 +26,8 @@ RUN apt-get update \
     && cd /estuaire \
     && chmod +x entrypoint.sh
 
+ENV PYTHONPATH=$PYTHONPATH:/estuaire/site_scons
+
 ENTRYPOINT ["./estuaire/entrypoint.sh"]
 
 #ENTRYPOINT = [". /venv/estuaire/bin/activate"]
