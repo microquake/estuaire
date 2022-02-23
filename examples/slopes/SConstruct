@@ -45,11 +45,12 @@ env = Environment(tools = ['Lotic'])     # Loading Lotic into SCons environment
 # PRIOR_RANGE = (INIT_PRIOR, INIT_PRIOR / 10.0)
 #
 # # Determination of the inversion parameter as exponentials
-# priors = slopes.exprange(50, PRIOR_RANGE, size = EXPSIZE)
+# priors = slopes.exprange(50, PRIOR_RANGE[0], PRIOR_RANGE[1],
+#                           size = EXPSIZE)
 #
 # for i, p in enumerate(priors):
 #     plan.set_grid_inversion("one", prior = p, post_smoothing = 3)
-#     plan.push_inversion("build/tomography_%d" %i) # Pushing 1 inversion
+#     plan.push_inversion("build/tomography_%d" %i) # Pushing inversion
 #
 #
 # # Telling scons which target we want to build

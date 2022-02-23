@@ -9,6 +9,7 @@ __doc__ = """
 """
 
 from SCons.Script import Builder, Mkdir, Copy, Execute
+import sys
 
 import matplotlib
 matplotlib.use('Agg')
@@ -38,6 +39,7 @@ adverbs = ['smootly',
            'as intended',
            'pridefully'
            ]
+
 
 def generate(env):
     import time
@@ -84,14 +86,11 @@ def generate(env):
         with open(filename, 'w') as f:
             f.write(html)
 
-
-
     def ImageReportEmitter(target, source, env):
         basename = hashlib.md5(str(source[0])).hexdigest()
         htmlfile = os.path.join(env['REPORT_ROOT'], basename) + ".html"
         imagefile = os.path.join(env['REPORT_ROOT'], 'img', basename) + ".png"
         return [htmlfile, imagefile], source
-
 
     def HistogramReport(source, target, env):
         filename = str(target[0])
@@ -233,8 +232,6 @@ def generate(env):
         f.savefig(graphfile)
 
 
-
-
     def ConcatenateReport(source, target, env):
         target = str(target[0])
         cssroot = os.path.join(os.path.dirname(target), 'css')
@@ -271,6 +268,7 @@ def generate(env):
 
 def exists(env):
     return 1
+
 
 if __name__ == '__main__':
     from twisted.web import server, resource

@@ -1,0 +1,6 @@
+[submodule "libraries/agstd"]
+	path = libraries/agstd
+	url = https://github.com/microquake/agstd.git
+[submodule "libraries/eikonal"]
+	path = libraries/eikonal
+	url = https://github.com/microquake/eikonal.git

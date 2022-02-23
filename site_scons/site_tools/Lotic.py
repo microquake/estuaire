@@ -47,9 +47,8 @@ def RegularizationOperator(env, shape, eta = (1, 1), spacing = 1):
     user.
     """
     template = string.Template(env['GRID_REGULARIZATION_TEMPLATE'])
-    output_filename = template.substitute(shape = "x".join(map(str,shape)),
-                                          eta = "_".join(map(str, eta)))
-
+    output_filename = template.substitute(shape="x".join(map(str, shape)),
+                                          eta="_".join(map(str, eta)))
 
     if output_filename not in __regularization_targets__:
         source = map(env.Value, [shape, eta, spacing])
@@ -62,10 +61,12 @@ def RegularizationOperator(env, shape, eta = (1, 1), spacing = 1):
 def generate(env):
 
     tools = ['BuildInfos', 'ForwardModelling', 'FetchDB', 'ExtractColumn',
-             'TableTransform', 'VelocityGrid', 'CGInverse','FilterDB',
-             'GridDifference', 'UpdateModel', 'Report', 'DoubleDifference',
+             'TableTransform', 'VelocityGrid', 'CGInverse', 'FilterDB',
+             'GridDifference', 'UpdateModel', 'DoubleDifference',
              'GaussianSmoothing', 'Raytrace', 'SQLFetchDB', 'Checkerboard',
              'Exporter', 'Noise']
+
+    # 'Report'
 
     for t in tools:
         env.Tool(t)
@@ -126,6 +127,7 @@ def generate(env):
                                            'regularization-${shape}-${eta}.lop')
 
     env['GRID_REGULARIZATION_TEMPLATE'] = regularization_template
+
 
 def exists(env):
     return 1

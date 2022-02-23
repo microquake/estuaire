@@ -65,8 +65,9 @@ from SCons.Script import Action
 
 import pickle
 
-def exprange(p, (max_value, min_value), size = 30):
-    this_range = (max_value - min_value)
+
+def exprange(p, max_value, min_value, size=30):
+    this_range = max_value - min_value
     return np.exp(np.linspace(p, 0, size)) * this_range / np.exp(p) + min_value
 
 
@@ -539,8 +540,7 @@ class InversionPlan(object):
         return rtgt
 
 
-
-    def insert_velocity_grid(self, gid, grid, tt_tgt, root = 'build', **kw):
+    def insert_velocity_grid(self, gid, grid, tt_tgt, root='build', **kw):
         """
         Insert a Velocity grid into the Inversion Plan using the grid
          description
@@ -567,9 +567,9 @@ class InversionPlan(object):
 
         eik_tgt, fre_tgt = self.env.ForwardModelling2(tt_tgt, grid, gid,
                                                       os.path.join(root, gid,
-                                                                   "eikonal_${basename}"),
+                                                      "eikonal_${basename}"),
                                                       os.path.join(root, gid,
-                                                                   "frechet_${basename}"),)
+                                                      "frechet_${basename}"),)
 
         rayroot = os.path.join(root, gid)
 
@@ -583,11 +583,8 @@ class InversionPlan(object):
 
     insert_velocity_grid_desc = insert_velocity_grid
 
-
-
-
-    def set_grid_inversion(self, gid, prior = 1, regularization = 0,
-                           post_smoothing = None):
+    def set_grid_inversion(self, gid, prior==1, regularization=0,
+                           post_smoothing=None):
         """
         Add/Override the velocity into the next inversion iteration with the
         given prior, regularization and post smoothing.
@@ -606,7 +603,7 @@ class InversionPlan(object):
         self.current.idescription['grids'].append((gid, prior, regularization,
                                                    post_smoothing))
 
-    def set_double_difference(self, dd = True):
+    def set_double_difference(self, dd=True):
         """
         This method controls the inversion double difference operation. If the
         parameter is True, the next inversion matrix will be calculated using
@@ -729,10 +726,9 @@ class InversionPlan(object):
 
         self.report_targets.extend(cr)
 
-
-
-    def push_inversion(self, iroot, gtol = 1e-10, weighting = UniformWeighting(),
-                       report = False, prior_normalization = False, itype = 'linearcg'):
+    def push_inversion(self, iroot, gtol = 1e-10, weighting=UniformWeighting(),
+                       report=False, prior_normalization=False,
+                       itype='linearcg'):
         """
         This function push the current inversion description to the current
         inversion stack. It build the targets.
@@ -750,7 +746,7 @@ class InversionPlan(object):
 
         :returns: None
 
-        .. note:: This is where the magic happens
+        .note:: This is where the magic happens
         """
         if iroot in self.iroots:
             if log.isEnabledFor(logging.CRITICAL):
@@ -764,7 +760,6 @@ class InversionPlan(object):
         env = self.env
         idescription = self.current.idescription
 
-
         qbuilder    = QuadraticBuilder(env, iroot, idescription, self.current)
 
         # Inversion Preparation
@@ -773,14 +768,14 @@ class InversionPlan(object):
         qbuilder.process_double_difference_inversion()
 
         # The actual inversion
-        iresult =   qbuilder.inverse(weighting, gtol,
-
-                                     prior_normalization = prior_normalization,
-                                     itype = itype)
+        iresult = qbuilder.inverse(weighting, gtol,
+                                   prior_normalization=prior_normalization,
+                                   itype=itype)
 
         # Statistics
         (result, istats), (A, R, description), (D, P, I) = iresult.totuple()
-        self.__log_inversion__(iroot, iresult.idescription, iresult.residual_vector)
+        self.__log_inversion__(iroot, iresult.idescription,
+                               iresult.residual_vector)
 
 
         self.current.istats     = istats
@@ -796,7 +791,6 @@ class InversionPlan(object):
         if report:
             for gid in self.current.vgrids:
                 self.__push_report__(gid)
-
 
     def report_snapshot(self):
         """
@@ -864,9 +858,6 @@ class InversionPlan(object):
 InversionPlan2 = InversionPlan # Backward Compatibility
 
 
-
-
-
 class DBFetchPlan(object):
     def __init__(self, env, database, catalog, evnfile, stafile):
         self.filters = {}
@@ -906,7 +897,6 @@ class DBFetchPlan(object):
     def set_event_filter(self, eids):
         self.__check_builded__()
         self.filters['event'] = dbfilter.EventFilter(eids)
-
 
     def set_grid_filter(self, grid):
         """
@@ -958,6 +948,7 @@ class DBFetchPlan(object):
                                                                self.env.Value(evcol),
                                                                self.env.Value(evstd)])[0]
 
+
 class H5FDBFetchPlan(DBFetchPlan):
     def __init__(self, env, database, catalog, evnfile, stafile, group):
         DBFetchPlan.__init__(self, env, database, catalog, evnfile, stafile)
@@ -972,7 +963,6 @@ class H5FDBFetchPlan(DBFetchPlan):
         return self.__evntgt__
     evnfile = property(__fetch_event__)
     evntgt = evnfile
-
 
     def __fetch_station__(self):
         if self.__statgt__ is None:
@@ -1004,6 +994,7 @@ class H5FDBFetchPlan(DBFetchPlan):
                                                   self.env.Value(ptype),
                                                   self.env.Value(filetemplate)])
         return tt_tgt
+
 
 class SQLDBFetchPlan(DBFetchPlan):
     """
@@ -1055,9 +1046,6 @@ class SQLDBFetchPlan(DBFetchPlan):
             self.builded = True
         return self.__stafile__
     stafile = property(__fetch_station__)
-
-
-
 
 
 class GridDescription(object):

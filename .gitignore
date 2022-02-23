@@ -1,1 +1,4 @@
 .idea
+*dblite
+*__pycache__
+*log

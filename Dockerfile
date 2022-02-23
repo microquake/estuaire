@@ -4,31 +4,44 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 COPY . /estuaire
 
-RUN apt update \
-    && apt install python2 -y \
+#RUN apt update \
+#    && apt install python2 -y \
+
+RUN apt-get update \
+    && apt-get install -y python3.9 python3-pip python3.9-dev \
+    && ln -s /usr/bin/python3.9 /usr/bin/python \
+    && apt install -y curl \
+#    && curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py \
+    && apt install python3.9-venv \
+    && python3.9 -m venv /venv/estuaire \
+    && . /venv/estuaire/bin/activate \
+    && pip install poetry \
+    && poetry config virtualenvs.create false --local \
+    && apt install git -y \
+    && git clone https://github.com/microquake/estuaire.git \
+    && cd /estuaire && git submodule init \
+    && cd libraries/eikonal && make clean && make \
+    && cp bin/* /venv/estuaire/bin/. \
+    && cd ../.. && poetry install
 
 
-#RUN apt-get update \
-#    && apt-get install -y python3.9 python3-pip python3.9-dev \
-#    && ln -s /usr/bin/python3.9 /usr/bin/python \
-#    && apt install -y curl \
-##    && curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py \
-#    && apt install python3.9-venv \
-#    && python3.9 -m venv /venv/estuaire \
-#    && . /venv/estuaire/bin/activate \
-#    && pip install poetry \
-#    && poetry config virtualenvs.create false --local \
-#    && apt install git -y \
 #    && git clone https://github.com/microquake/eikonal.git \
-#    && pip install mako cython numpy \
-#    && cd eikonal && make clean && make && poetry install \
+#    && pip install mako cython numpy scipy\
+#    && cd eikonal && make clean && make \
 #    && cp bin/* /venv/estuaire/bin/. \
-#    && cd ../estuaire && pip install scons && pip install ipython \
+#    && poetry install \
+#    && cd ../estuaire && pip install scons ipython \
+#    && cd / && git clone https://github.com/microquake/agstd.git  \
+#    && cd /agstd && poetry install\
+#    && cd /estuaire \
 #    && chmod +x entrypoint.sh
-##    && pip install ipython \
+#    && pip install ipython \
 
+#RUN ./estuaire/entrypoint.sh \
+#    && git clone https://github.com/microquake/agstd.git \
+#    && cd agstd && poetry install
 
-#ENTRYPOINT ["./estuaire/entrypoint.sh"]
+ENTRYPOINT ["./estuaire/entrypoint.sh"]
 
 #ENTRYPOINT = [". /venv/estuaire/bin/activate"]
 
