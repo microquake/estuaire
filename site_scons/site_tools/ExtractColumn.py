@@ -16,6 +16,10 @@ import pickle
 import logger
 
 import logging
+
+np_load = np.load
+np.load = lambda *a, **k: np_load(*a, allow_pickle=True, **k)
+
 log = logging.getLogger('tools.ExtractColumn')
 
 def ExtractColumn(source, target, env):

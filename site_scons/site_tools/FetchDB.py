@@ -22,6 +22,9 @@ import logger
 import eikonal.data
 from eikonal.data import ev_dtype, st_dtype, tt_dtype
 
+np_load = np.load
+np.load = lambda *a, **k: np_load(*a, allow_pickle=True, **k)
+
 def init_model_array(dbfile, dbgroup, catname, efilters):
     db = sdbase.SeismicHDF5DB(dbfile, dbgroup)
     ma = sdbase.ModelArray(db, catname)
@@ -65,9 +68,10 @@ def populate_traveltimes(ma, evary, stary):
         ary['traveltime']   = tt[argsort]
         ary['event_id']     = np.searchsorted(evary['id'], ev[argsort])
 
-        result[i] = dict(ary = ary,
-                         station_id = np.searchsorted(stary['id'], st))
+        result[i] = dict(ary=ary,
+                         station_id=np.searchsorted(stary['id'], st))
     return result
+
 
 def DBEmitter(target, source, env):
     evfile, stfile = [str(t) for t in target[:2]]
@@ -91,6 +95,7 @@ def DBEmitter(target, source, env):
                                   "Could be a bad filter ?")
     return target + stargets, source
 
+
 def H5FEvent(target, source, env):
     """
     :source 0: dbfile
@@ -111,6 +116,7 @@ def H5FEvent(target, source, env):
     event_table = eikonal.data.EKEventTable(evary)
 
     pickle.dump(event_table, open(evfile, 'w'), protocol = pickle.HIGHEST_PROTOCOL)
+
 
 def H5FStation(target, source, env):
     """
@@ -133,6 +139,7 @@ def H5FStation(target, source, env):
     station_table = eikonal.data.EKStationTable(stary)
 
     pickle.dump(station_table, open(stfile, 'w'), protocol = pickle.HIGHEST_PROTOCOL)
+
 
 def H5FTT(target, source, env):
     """
@@ -159,7 +166,6 @@ def H5FTT(target, source, env):
                         protocol = pickle.HIGHEST_PROTOCOL)
 
 
-
 def H5FEmitter(target, source, env):
     dbfile, stfile, evfile = [str(s) for s in source[:3]]
     group, catalog, efilters, ptype = [s.value for s in source[3:7]]
@@ -184,8 +190,6 @@ def H5FEmitter(target, source, env):
                                   " Bad filter(s) ?")
 
     return target + stargets, source
-
-
 
 
 def FetchDBAction(source, target, env):
@@ -238,7 +242,6 @@ def FetchDBAction(source, target, env):
                         protocol = pickle.HIGHEST_PROTOCOL)
 
 
-
 def generate(env):
     H5FEventAction = Action(H5FEvent, strfunction = logger.default_strfun("Fetch Event from H5F DB"))
     H5FStationAction = Action(H5FStation, strfunction = logger.default_strfun("Fetch Station from H5F DB"))
@@ -252,6 +255,7 @@ def generate(env):
     env['BUILDERS']['H5FFetchEvent'] = Builder(action = H5FEventAction)
     env['BUILDERS']['H5FFetchStation'] = Builder(action = H5FStationAction)
     env['BUILDERS']['H5FFetchTraveltime'] = Builder(action = H5FTraveltimeAction, emitter = H5FEmitter)
+
 
 def exists(env):
     return 1

@@ -16,16 +16,17 @@ import logger
 import agstd.sdb.sqldbase as sqldbase
 import sqlite3
 import string
-
 import eikonal.data
 
 import pickle
 
 import numpy as np
 
+
 def split_station(table, ids):
     sorted_value = np.searchsorted(table['station_id'], ids, side = 'right')
     return np.split(table, sorted_value)
+
 
 def SQLTTEmitter(target, source, env):
     dbfile, evnfile, stafile = [str(s) for s in source[0:3]]
@@ -38,19 +39,21 @@ def SQLTTEmitter(target, source, env):
     builder = sqldbase.ModelQueryBuilder()
     builder.set_filters(efilter)
 
-    station = conn.execute(builder.station_query(catalog = catalog)).fetchall()
-    station = np.array(station, dtype = sqldbase.st_dtype)
+    station = conn.execute(builder.station_query(catalog=catalog)).fetchall()
+    station = np.array(station, dtype=sqldbase.st_dtype)
 
     ftemplate = string.Template(source[5].value)
 
-    stargets = [ftemplate.substitute(sid = s) for s in station['id']]
+    stargets = [ftemplate.substitute(sid=s) for s in station['id']]
+
     if len(stargets) == 0:
         if logger.tools.isEnabledFor(logger.CRITICAL):
-            logger.tools.critical("Database extraction ended with no traveltime" \
+            logger.tools.critical("Database extraction ended with no "
+                                  "traveltime" \
                                   "being selected. Check your filter ... ")
 
-
     return stargets, source
+
 
 def SQLTT(target, source, env):
     """

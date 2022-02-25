@@ -17,6 +17,9 @@ import scipy as sc
 import scipy.ndimage
 import pickle
 
+np_load = np.load
+np.load = lambda *a, **k: np_load(*a, allow_pickle=True, **k)
+
 def GaussianSmoothingAction(source, target, env):
     """
     Source :    0 - Grid Description

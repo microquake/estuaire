@@ -14,6 +14,10 @@ import subprocess
 
 import numpy as np
 
+np_load = np.load
+np.load = lambda *a, **k: np_load(*a, allow_pickle=True, **k)
+
+
 def CheckerboardAction(target, source, env):
     """
     Scons Action

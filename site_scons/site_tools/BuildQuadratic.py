@@ -25,6 +25,9 @@ import pickle
 
 import logger
 
+np_load = np.load
+np.load = lambda *a, **k: np_load(*a, allow_pickle=True, **k)
+
 
 def CreateBlockMatrix(ffiles, col):
     coldict = dict(zip(col, range(len(col))))

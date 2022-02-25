@@ -18,6 +18,9 @@ import pickle
 import logger
 import escripts
 
+np_load = np.load
+np.load = lambda *a, **k: np_load(*a, allow_pickle=True, **k)
+
 
 def EikonalSolver2(source, target, env):
     """

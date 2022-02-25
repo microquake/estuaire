@@ -14,6 +14,9 @@ import numpy as np
 
 import logger
 
+np_load = np.load
+np.load = lambda *a, **k: np_load(*a, allow_pickle=True, **k)
+
 def extract_column(colname, description, model):
     lower = 0
     for i, (name, shape) in enumerate(description):
