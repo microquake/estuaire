@@ -78,16 +78,16 @@ def BuildQuadraticAction(source, target, env):
 
 
     pickle.dump(dict(A = A, R = R),
-                open(str(target[0]), 'w'),
+                open(str(target[0]), 'wb'),
                 protocol = pickle.HIGHEST_PROTOCOL)
 
     pickle.dump(R,
-                open(str(target[1]), 'w'),
+                open(str(target[1]), 'wb'),
                 protocol = pickle.HIGHEST_PROTOCOL)
 
 
     pickle.dump([(f, description[f]) for f in filt],
-                open(str(target[2]), 'w'),
+                open(str(target[2]), 'wb'),
                 protocol = pickle.HIGHEST_PROTOCOL)
 
 
@@ -99,7 +99,7 @@ def CreateBlkMatrixAction(source, target, env):
 
     Target :        0 - Output file
     """
-    description = pickle.load(open(str(source[0])))
+    description = pickle.load(open(str(source[0], 'rb')))
     blk = [[None] * len(description) for i in description]
     sparse = []
     for i, (s, (name, shape)) in enumerate(zip(source[1:], description)):
@@ -116,7 +116,7 @@ def CreateBlkMatrixAction(source, target, env):
                 sparse.append(row)
     mat = sc.sparse.bmat(sparse).tocsr()
 
-    pickle.dump(mat, open(str(target[0]), 'w'),
+    pickle.dump(mat, open(str(target[0]), 'wb'),
                 protocol = pickle.HIGHEST_PROTOCOL)
 
 
@@ -128,7 +128,7 @@ def CreateBlkVectorAction(source, target, env):
 
     Target :        0 - Output file
     """
-    description = pickle.load(open(str(source[0])))
+    description = pickle.load(open(str(source[0], 'rb')))
     blk = [None] * len(description)
     for i, (s, (name, shape)) in enumerate(zip(source[1:], description)):
         size = np.prod(shape)
@@ -142,7 +142,7 @@ def CreateBlkVectorAction(source, target, env):
             blk[i] = np.ravel(np.load(str(s)))
     vect = np.concatenate(blk)
 
-    pickle.dump(vect, open(str(target[0]), 'w'),
+    pickle.dump(vect, open(str(target[0]), 'wb'),
                 protocol = pickle.HIGHEST_PROTOCOL)
 
 def generate(env):

@@ -208,7 +208,7 @@ def generate(env):
         filename = str(target[0])
         graphfile = str(target[1])
 
-        invstats = pickle.load(open(statfile))
+        invstats = pickle.load(open(statfile, 'rb'))
 
         timestamp = source[0].get_timestamp()
         size = env['REPORT_HISTOGRAM_SIZE']

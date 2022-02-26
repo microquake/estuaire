@@ -27,8 +27,8 @@ def NormalizePrior(target, source, env):
     """
     pdescfile, frechetfile = [str(s) for s in source[:2]]
 
-    desc = pickle.load(open(pdescfile))
-    A = pickle.load(open(frechetfile))['A']
+    desc = pickle.load(open(pdescfile, 'rb'))
+    A = pickle.load(open(frechetfile, 'rb'))['A']
     logger.tools.info(str(desc))
 
     for cname, output, prior in zip(source[2].value, target[:], source[3:]):
@@ -47,8 +47,8 @@ def NormalizePrior(target, source, env):
             mat = sc.sparse.eye(size, size) * (norm / prior.value)
             logger.tools.critical(str(prior.value))
         else:
-            mat = pickle.load(open(prior)) / prior.value
-        pickle.dump(mat.tocsr(), open(str(output), 'w'), protocol = pickle.HIGHEST_PROTOCOL)
+            mat = pickle.load(open(prior, 'rb')) / prior.value
+        pickle.dump(mat.tocsr(), open(str(output), 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
 
 
 

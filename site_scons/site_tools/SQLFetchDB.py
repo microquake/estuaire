@@ -68,10 +68,10 @@ def SQLTT(target, source, env):
     builder = sqldbase.ModelQueryBuilder()
     builder.set_filters(efilter)
 
-    event = pickle.load(open(evnfile))
-    station = pickle.load(open(stafile))
-    tt = conn.execute(builder.traveltime_query(catalog = catalog)).fetchall()
-    tt = np.array(tt, dtype = sqldbase.tt_dtype)
+    event = pickle.load(open(evnfile, 'rb'))
+    station = pickle.load(open(stafile, 'rb'))
+    tt = conn.execute(builder.traveltime_query(catalog=catalog)).fetchall()
+    tt = np.array(tt, dtype=sqldbase.tt_dtype)
 
     tt['event_id'] = np.searchsorted(event.data['id'], tt['event_id'])
 
@@ -79,7 +79,7 @@ def SQLTT(target, source, env):
     #print tts
     for sid, (t, out) in enumerate(zip(tts, ttfiles)):
         tt_table = eikonal.data.EKTTTable(t, sid, evnfile = evnfile, stafile = stafile)
-        pickle.dump(tt_table, open(out, 'w'),
+        pickle.dump(tt_table, open(out, 'wb'),
                         protocol = pickle.HIGHEST_PROTOCOL)
 
 
@@ -104,7 +104,7 @@ def SQLStation(target, source, env):
 
     station_table = eikonal.data.EKStationTable(station)
 
-    pickle.dump(station_table, open(stfile, 'w'), protocol = pickle.HIGHEST_PROTOCOL)
+    pickle.dump(station_table, open(stfile, 'wb'), protocol = pickle.HIGHEST_PROTOCOL)
 
 def SQLEvent(target, source, env):
     """
@@ -127,7 +127,7 @@ def SQLEvent(target, source, env):
 
     event_table = eikonal.data.EKEventTable(event)
 
-    pickle.dump(event_table, open(evfile, 'w'), protocol = pickle.HIGHEST_PROTOCOL)
+    pickle.dump(event_table, open(evfile, 'wb'), protocol = pickle.HIGHEST_PROTOCOL)
 
 
 def generate(env):

@@ -34,7 +34,7 @@ def PerturbateColumnAction(source, target, env):
     if inobj != intable:
         inobj[source[3].value] = intable
 
-    pickle.dump(inobj, open(outfile, 'w'), protocol = pickle.HIGHEST_PROTOCOL)
+    pickle.dump(inobj, open(outfile, 'wb'), protocol = pickle.HIGHEST_PROTOCOL)
 
 
 

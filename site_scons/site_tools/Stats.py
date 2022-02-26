@@ -31,7 +31,7 @@ def ResidualHistogram(source, target, env):
     if len(source) > 2:
         kw['range'] = source[2].value
 
-    residuals = pickle.load(open(str(source[0])))['R']
+    residuals = pickle.load(open(str(source[0]), 'rb'))['R']
 
     plt.hist(residuals, **kw)
     plt.savefig(str(target[0]))

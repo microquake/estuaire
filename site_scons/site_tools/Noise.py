@@ -14,9 +14,9 @@ def AdditiveGaussianNoise(target, source, env):
 
     for c, s in zip(columns, stdev):
         shape = tableobj.data[c].shape
-        tableobj.data[c] += np.random.normal(loc = 0, scale = s, size = shape)
+        tableobj.data[c] += np.random.normal(loc=0, scale=s, size=shape)
 
-    pickle.dump(tableobj, open(str(target[0]), 'w'), protocol = pickle.HIGHEST_PROTOCOL)
+    pickle.dump(tableobj, open(str(target[0]), 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
 
 
 def generate(env):

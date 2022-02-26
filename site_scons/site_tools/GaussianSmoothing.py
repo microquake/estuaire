@@ -40,7 +40,7 @@ def GaussianSmoothingAction(source, target, env):
     if logger.tools.isEnabledFor(logger.INFO):
         logger.tools.info("Range of the Smoothed %s Grid [%f, %f]" % ((outfile,) + extrema))
 
-    pickle.dump(grid, open(outfile, 'w'), protocol = pickle.HIGHEST_PROTOCOL)
+    pickle.dump(grid, open(outfile, 'wb'), protocol = pickle.HIGHEST_PROTOCOL)
 
     if extrema[0] < 0:
         if logger.tools.isEnabledFor(logger.CRITICAL):

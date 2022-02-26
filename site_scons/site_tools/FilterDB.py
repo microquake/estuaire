@@ -44,7 +44,7 @@ def FilterDB(source, target, env):
 
     ttable['ary'] = ttable['ary'][ein[ttable['ary']['event_id']]]
 
-    pickle.dump(ttable, open(outfile, 'w'))
+    pickle.dump(ttable, open(outfile, 'wb'))
 
 def UpdateAndFilterTT(source, target, env):
     """
@@ -80,7 +80,7 @@ def UpdateAndFilterTT(source, target, env):
     tttable.__evn_file__ = str(source[1])
     tttable.__sta_file__ = str(source[2])
 
-    pickle.dump(tttable, open(outfile, 'w'), protocol = pickle.HIGHEST_PROTOCOL)
+    pickle.dump(tttable, open(outfile, 'wb'), protocol = pickle.HIGHEST_PROTOCOL)
 
 
 

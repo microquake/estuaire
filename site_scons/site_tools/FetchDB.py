@@ -115,7 +115,7 @@ def H5FEvent(target, source, env):
     evary   = populate_events(ma)
     event_table = eikonal.data.EKEventTable(evary)
 
-    pickle.dump(event_table, open(evfile, 'w'), protocol = pickle.HIGHEST_PROTOCOL)
+    pickle.dump(event_table, open(evfile, 'wb'), protocol = pickle.HIGHEST_PROTOCOL)
 
 
 def H5FStation(target, source, env):
@@ -138,7 +138,7 @@ def H5FStation(target, source, env):
     stary   = populate_stations(ma)
     station_table = eikonal.data.EKStationTable(stary)
 
-    pickle.dump(station_table, open(stfile, 'w'), protocol = pickle.HIGHEST_PROTOCOL)
+    pickle.dump(station_table, open(stfile, 'wb'), protocol = pickle.HIGHEST_PROTOCOL)
 
 
 def H5FTT(target, source, env):
@@ -160,10 +160,10 @@ def H5FTT(target, source, env):
     ttarys = populate_traveltimes(ma, evary, stary)
     for tt in ttarys:
         sid = stary['id'][tt['station_id']]
-        filename = ftemplate.substitute(sid = sid, ptype = ptype)
-        tt_table = eikonal.data.EKTTTable(tt['ary'], tt['station_id'], evnfile = evfile, stafile = stfile)
-        pickle.dump(tt_table, open(filename, 'w'),
-                        protocol = pickle.HIGHEST_PROTOCOL)
+        filename = ftemplate.substitute(sid=sid, ptype=ptype)
+        tt_table = eikonal.data.EKTTTable(tt['ary'], tt['station_id'], evnfile=evfile, stafile=stfile)
+        pickle.dump(tt_table, open(filename, 'wb'),
+                        protocol=pickle.HIGHEST_PROTOCOL)
 
 
 def H5FEmitter(target, source, env):
@@ -224,8 +224,8 @@ def FetchDBAction(source, target, env):
     station_table = eikonal.data.EKStationTable(stary)
     event_table = eikonal.data.EKEventTable(evary)
 
-    pickle.dump(event_table, open(evfile, 'w'), protocol = pickle.HIGHEST_PROTOCOL)
-    pickle.dump(station_table, open(stfile, 'w'), protocol = pickle.HIGHEST_PROTOCOL)
+    pickle.dump(event_table, open(evfile, 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
+    pickle.dump(station_table, open(stfile, 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
     #np.save(evfile, evary)
     #np.save(stfile, stary)
 
@@ -236,9 +236,9 @@ def FetchDBAction(source, target, env):
 
         for tt in ttarys:
             sid = stary['id'][tt['station_id']]
-            filename = ftemplate.substitute(sid = sid, ptype = ptype)
-            tt_table = eikonal.data.EKTTTable(tt['ary'], tt['station_id'], evnfile = evfile, stafile = stfile)
-            pickle.dump(tt_table, open(filename, 'w'),
+            filename = ftemplate.substitute(sid=sid, ptype=ptype)
+            tt_table = eikonal.data.EKTTTable(tt['ary'], tt['station_id'], evnfile=evfile, stafile=stfile)
+            pickle.dump(tt_table, open(filename, 'wb'),
                         protocol = pickle.HIGHEST_PROTOCOL)
 
 

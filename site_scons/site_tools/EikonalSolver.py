@@ -31,7 +31,7 @@ def EikonalSolver2(source, target, env):
 
     """
     velocityfile = str(source[0])
-    vgrid = pickle.load(open(velocityfile))
+    vgrid = pickle.load(open(velocityfile, 'rb'))
 
     tttable = np.load(str(source[1]))
     seed = tttable.station_row['position']

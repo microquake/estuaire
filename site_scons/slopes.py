@@ -96,7 +96,7 @@ def BoxWeighting(sigma):
 def InfoFct(target, source, env):
         rfile = str(source[0])
         node_dict = source[1].value
-        R = pickle.load(open(str(source[0])))
+        R = pickle.load(open(str(source[0]), 'rb'))
 
         if logger.structured.isEnabledFor(logger.INFO):
             avg = np.average(R)

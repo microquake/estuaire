@@ -39,7 +39,7 @@ def ExtractColumn(source, target, env):
     if log.isEnabledFor(logging.INFO):
         log.info("Extracted %s Info <range=[%f, %f], average=%f, stdev=%f" % \
                  (colname, column.max(), column.min(), np.average(column), np.std(column)))
-    pickle.dump(column, open(outfile, 'w'), protocol = pickle.HIGHEST_PROTOCOL)
+    pickle.dump(column, open(outfile, 'wb'), protocol = pickle.HIGHEST_PROTOCOL)
 
 def ExtractData(source, target, env):
     """
@@ -51,7 +51,7 @@ def ExtractData(source, target, env):
     grid = np.load(gfile)
 
     outfile = str(target[0])
-    pickle.dump(grid.data, open(outfile, 'w'), protocol = pickle.HIGHEST_PROTOCOL)
+    pickle.dump(grid.data, open(outfile, 'wb'), protocol = pickle.HIGHEST_PROTOCOL)
 
 
 
