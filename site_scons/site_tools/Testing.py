@@ -15,6 +15,11 @@ from SCons.Script import Builder
 import pickle
 import numpy as np
 
+
+def np_load(*args, **kwargs):
+    return lambda *a, **k: np.load(*a, allow_pickle=True, **k)
+
+
 def PerturbateColumnAction(source, target, env):
     """
     Source :    0 - Input file
@@ -25,7 +30,7 @@ def PerturbateColumnAction(source, target, env):
     colname, stdev = [s.value for s in source[1:3]]
 
     outfile = str(target[0])
-    inobj = np.load(infile)
+    inobj = np_load(infile)
 
     intable = inobj[source[3].value] if len(source) > 3 else inobj
 

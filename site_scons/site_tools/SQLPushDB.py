@@ -17,6 +17,11 @@ import numpy as np
 
 import agstd.sdb.sqldbase as dbase
 
+
+def np_load(*args, **kwargs):
+    return lambda *a, **k: np.load(*a, allow_pickle=True, **k)
+
+
 def SQLPushDB(target, source, env):
     """
     
@@ -28,8 +33,8 @@ def SQLPushDB(target, source, env):
     evfile, stfile = [str(s) for s in source[:2]]
     ttfiles = [str(s) for s in source[2:]]
 
-    evtable = np.load(open(evfile))
-    sttable = np.load(open(evfile))
+    evtable = np_load(open(evfile))
+    sttable = np_load(open(evfile))
 
     for i, e in enumerate(evtable):
         conn.execute("INSERT INTO event(id, X, Y, Z) VALUES(?,?,?,?)",

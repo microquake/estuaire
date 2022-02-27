@@ -22,8 +22,10 @@ import logger
 import eikonal.data
 from eikonal.data import ev_dtype, st_dtype, tt_dtype
 
-np_load = np.load
-np.load = lambda *a, **k: np_load(*a, allow_pickle=True, **k)
+
+def np_load(*args, **kwargs):
+    return lambda *a, **k: np.load(*a, allow_pickle=True, **k)
+
 
 def init_model_array(dbfile, dbgroup, catname, efilters):
     db = sdbase.SeismicHDF5DB(dbfile, dbgroup)
@@ -151,8 +153,8 @@ def H5FTT(target, source, env):
     ftemplate = string.Template(source[7].value)
 
 
-    stary = np.load(stfile).data
-    evary = np.load(evfile).data
+    stary = np_load(stfile).data
+    evary = np_load(evfile).data
 
     ma = init_model_array(dbfile, group, catalog, efilters)
     ma.ptype = ptype

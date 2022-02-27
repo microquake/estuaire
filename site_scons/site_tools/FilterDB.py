@@ -16,8 +16,10 @@ import pickle
 
 import logger
 
-np_load = np.load
-np.load = lambda *a, **k: np_load(*a, allow_pickle=True, **k)
+
+def np_load(*args, **kwargs):
+    return lambda *a, **k: np.load(*a, allow_pickle=True, **k)
+
 
 def FilterDB(source, target, env):
     """
@@ -29,7 +31,7 @@ def FilterDB(source, target, env):
 
     Target :        0 - Output TT File
     """
-    etable, stable, ttable = [np.load(str(s)) for s in source[:3]]
+    etable, stable, ttable = [np_load(str(s)) for s in source[:3]]
     origin, length = [s.value for s in source[3:5]]
 
     outfile = str(target[0])
@@ -56,7 +58,7 @@ def UpdateAndFilterTT(source, target, env):
 
     :target 0:  Output TT FIle
     """
-    tttable, evtable, sttable, grid = [np.load(str(s)) for s in source[:4]]
+    tttable, evtable, sttable, grid = [np_load(str(s)) for s in source[:4]]
     padding = source[4].value * grid.spacing
 
     outfile = str(target[0])

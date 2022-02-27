@@ -17,8 +17,9 @@ import logger
 
 import logging
 
-np_load = np.load
-np.load = lambda *a, **k: np_load(*a, allow_pickle=True, **k)
+
+def np_load(*args, **kwargs):
+    return lambda *a, **k: np.load(*a, allow_pickle=True, **k)
 
 log = logging.getLogger('tools.ExtractColumn')
 
@@ -35,7 +36,7 @@ def ExtractColumn(source, target, env):
 
     outfile = str(target[0])
 
-    column = np.load(tfile).data[colname]
+    column = np_load(tfile).data[colname]
     if log.isEnabledFor(logging.INFO):
         log.info("Extracted %s Info <range=[%f, %f], average=%f, stdev=%f" % \
                  (colname, column.max(), column.min(), np.average(column), np.std(column)))
@@ -48,7 +49,7 @@ def ExtractData(source, target, env):
     :target 1:  Output
     """
     gfile = str(source[0])
-    grid = np.load(gfile)
+    grid = np_load(gfile)
 
     outfile = str(target[0])
     pickle.dump(grid.data, open(outfile, 'wb'), protocol = pickle.HIGHEST_PROTOCOL)

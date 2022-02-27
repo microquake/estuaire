@@ -14,8 +14,9 @@ import subprocess
 
 import numpy as np
 
-np_load = np.load
-np.load = lambda *a, **k: np_load(*a, allow_pickle=True, **k)
+
+def np_load(*args, **kwargs):
+    return lambda *a, **k: np.load(*a, allow_pickle=True, **k)
 
 
 def CheckerboardAction(target, source, env):
@@ -53,16 +54,17 @@ def CheckerboardLikeAction(target, source, env):
                     3 - Variation in Percentage of BG Velocity (optional)
     """
 
-    grid = np.load(str(source[0]))
+    grid = np_load(str(source[0]))
     sigma, bgvel = [s.value for s in source[1:3]]
     output = str(target[0])
 
     shape = ",".join(map(str, grid.shape))
     origin = ",".join(map(str, grid.origin))
 
-    cmd = [escripts.CHECKERBOARD, "--shape", shape, "--spacing", str(grid.spacing),
-           "--bgvel", str(bgvel), "--output", output, "--sigma", str(sigma), "--origin",
-           '"%s"' % ",".join(map(str, grid.origin))]
+    cmd = [escripts.CHECKERBOARD, "--shape", shape, "--spacing",
+           str(grid.spacing), "--bgvel", str(bgvel), "--output", output,
+           "--sigma", str(sigma),
+           "--origin", '"%s"' % ",".join(map(str, grid.origin))]
 
     print(cmd)
 
@@ -72,11 +74,11 @@ def CheckerboardLikeAction(target, source, env):
     return subprocess.Popen(cmd).wait()
 
 
-
-
 def generate(env):
-    env['BUILDERS']['Checkerboard'] = Builder(action = CheckerboardAction)
-    env['BUILDERS']['CheckerboardLike'] = Builder(action = CheckerboardLikeAction)
+    env['BUILDERS']['Checkerboard'] = Builder(action=CheckerboardAction)
+    env['BUILDERS']['CheckerboardLike'] = Builder(action=
+                                                  CheckerboardLikeAction)
+
 
 def exists(env):
     return 1

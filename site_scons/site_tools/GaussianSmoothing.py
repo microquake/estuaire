@@ -17,8 +17,10 @@ import scipy as sc
 import scipy.ndimage
 import pickle
 
-np_load = np.load
-np.load = lambda *a, **k: np_load(*a, allow_pickle=True, **k)
+
+def np_load(*args, **kwargs):
+    return lambda *a, **k: np.load(*a, allow_pickle=True, **k)
+
 
 def GaussianSmoothingAction(source, target, env):
     """
@@ -32,20 +34,24 @@ def GaussianSmoothingAction(source, target, env):
     sigma = source[1].value
     outfile = str(target[0])
 
-    grid = np.load(infile)
+    grid = np_load(infile)
 
-    grid.data = scipy.ndimage.gaussian_filter(grid.data, sigma / grid.spacing, mode = 'mirror')
+    grid.data = scipy.ndimage.gaussian_filter(grid.data, sigma / grid.spacing,
+                                              mode='mirror')
 
     extrema = (grid.data.min(), grid.data.max())
     if logger.tools.isEnabledFor(logger.INFO):
-        logger.tools.info("Range of the Smoothed %s Grid [%f, %f]" % ((outfile,) + extrema))
+        logger.tools.info("Range of the Smoothed %s Grid [%f, %f]" %
+                          ((outfile,) + extrema))
 
-    pickle.dump(grid, open(outfile, 'wb'), protocol = pickle.HIGHEST_PROTOCOL)
+    pickle.dump(grid, open(outfile, 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
 
     if extrema[0] < 0:
         if logger.tools.isEnabledFor(logger.CRITICAL):
-            logger.tools.critical("-- %s -- Velocity Grid Negative Value Detected" % outfile)
-            logger.tools.critical("-- %s -- Choose your parameters Wisely ..." % outfile)
+            logger.tools.critical(
+                "-- %s -- Velocity Grid Negative Value Detected" % outfile)
+            logger.tools.critical(
+                "-- %s -- Choose your parameters Wisely ..." % outfile)
         return 1
     return 0
 

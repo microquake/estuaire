@@ -13,17 +13,18 @@
 __doc__ = """
 """
 
-
+import numpy as np
 from SCons.Script import Builder, Execute, Mkdir
 
-np_load = np.load
-np.load = lambda *a, **k: np_load(*a, allow_pickle=True, **k)
+
+def np_load(*args, **kwargs):
+    return lambda *a, **k: np.load(*a, allow_pickle=True, **k)
+
 
 def generate(env):
     import os
-    import numpy as np
-
     import string
+
     def ForwardModelling(target, source):
         """
         Source :        0 - Event file
@@ -41,11 +42,11 @@ def generate(env):
         spacing = source[4]
         ttfiles = [str(s) for s in source[5:]]
 
-        stations = np.load(stfile)
+        stations = np_load(stfile)
 
         atargets = []
         for tt in ttfiles:
-            stdesc = stations[np.load(tt)['station_id']]
+            stdesc = stations[np_load(tt)['station_id']]
             efile = os.path.join(edir, "arrival_" + os.path.basename(str(tt)))
             ffile = os.path.join(fdir, "frechet_" + os.path.basename(str(tt)))
 

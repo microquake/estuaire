@@ -17,8 +17,10 @@ import eikonal.data
 
 import logger
 
-np_load = np.load
-np.load = lambda *a, **k: np_load(*a, allow_pickle=True, **k)
+
+def np_load(*args, **kwargs):
+    return lambda *a, **k: np.load(*a, allow_pickle=True, **k)
+
 
 def HomogenousGridAction(source, target, env):
     """
@@ -50,7 +52,7 @@ def HomogenousGridFromGridDescription(source, target, env):
 def HomogenousGridLike(source, target, env):
     """
     """
-    grid = np.load(str(source[0]))
+    grid = np_load(str(source[0]))
     fill_value = source[1].value
     outfile = str(target[0])
 

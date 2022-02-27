@@ -10,8 +10,15 @@ __doc__ = """
 
 from SCons.Script import Builder, Mkdir, Copy, Execute
 import sys
+import numpy as np
 
 import matplotlib
+
+
+def np_load(*args, **kwargs):
+    return lambda *a, **k: np.load(*a, allow_pickle=True, **k)
+
+
 matplotlib.use('Agg')
 
 header = \
@@ -102,7 +109,7 @@ def generate(env):
         imgline = '<img src="%s" alt="Histogram"/>' %\
                 histofile.replace(os.path.dirname(filename), "")[1:]
 
-        column = np.load(str(source[0]))
+        column = np_load(str(source[0]))
 
         mean = np.average(column)
         stdev = np.std(column)
@@ -156,7 +163,7 @@ def generate(env):
 
         column = []
         for s in source:
-            r = np.load(str(s))[env['REPORT_RESIDUAL_HISTOGRAM_COLUMN']]
+            r = np_load(str(s))[env['REPORT_RESIDUAL_HISTOGRAM_COLUMN']]
             if r is not None:
                 column.extend(r)
         column = np.array(column)

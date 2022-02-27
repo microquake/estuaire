@@ -18,8 +18,9 @@ import pickle
 import logger
 import escripts
 
-np_load = np.load
-np.load = lambda *a, **k: np_load(*a, allow_pickle=True, **k)
+
+def np_load(*args, **kwargs):
+    return lambda *a, **k: np.load(*a, allow_pickle=True, **k)
 
 
 def EikonalSolver2(source, target, env):
@@ -33,7 +34,7 @@ def EikonalSolver2(source, target, env):
     velocityfile = str(source[0])
     vgrid = pickle.load(open(velocityfile, 'rb'))
 
-    tttable = np.load(str(source[1]))
+    tttable = np_load(str(source[1]))
     seed = tttable.station_row['position']
 
     strseed = [str(s) for sh, s in zip(vgrid.shape, seed)]

@@ -25,8 +25,9 @@ import pickle
 
 import logger
 
-np_load = np.load
-np.load = lambda *a, **k: np_load(*a, allow_pickle=True, **k)
+
+def np_load(*args, **kwargs):
+    return lambda *a, **k: np.load(*a, allow_pickle=True, **k)
 
 
 def CreateBlockMatrix(ffiles, col):
@@ -110,7 +111,7 @@ def CreateBlkMatrixAction(source, target, env):
             row[i] = sc.sparse.eye(size, size, dtype = 'float') * s.value
             sparse.append(row)
         else:
-            cblk = np.load(str(s))
+            cblk = np_load(str(s))
             if cblk is not None:
                 row[i] = cblk
                 sparse.append(row)
@@ -136,10 +137,10 @@ def CreateBlkVectorAction(source, target, env):
 
             blk[i] = np.diag([s.value] * size)
         else:
-            b = np.load(str(s))
+            b = np_load(str(s))
             if b.size != size:
                 raise AttributeError("Invalid Vector Size Detected : %s [%d vs %d]" % (name, b.size, size))
-            blk[i] = np.ravel(np.load(str(s)))
+            blk[i] = np.ravel(np_load(str(s)))
     vect = np.concatenate(blk)
 
     pickle.dump(vect, open(str(target[0]), 'wb'),
