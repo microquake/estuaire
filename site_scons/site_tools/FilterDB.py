@@ -18,7 +18,10 @@ import logger
 
 
 def np_load(*args, **kwargs):
-    return lambda *a, **k: np.load(*a, allow_pickle=True, **k)
+    if 'allow_pickle' in kwargs.keys():
+        return np.load(*args, **kwargs)
+    else:
+        return np.load(*args, allow_pickle=True, **kwargs)
 
 
 def FilterDB(source, target, env):
@@ -48,6 +51,7 @@ def FilterDB(source, target, env):
 
     pickle.dump(ttable, open(outfile, 'wb'))
 
+
 def UpdateAndFilterTT(source, target, env):
     """
     :source 0:  Traveltime File
@@ -59,6 +63,7 @@ def UpdateAndFilterTT(source, target, env):
     :target 0:  Output TT FIle
     """
     tttable, evtable, sttable, grid = [np_load(str(s)) for s in source[:4]]
+
     padding = source[4].value * grid.spacing
 
     outfile = str(target[0])

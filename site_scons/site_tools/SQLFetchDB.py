@@ -76,12 +76,11 @@ def SQLTT(target, source, env):
     tt['event_id'] = np.searchsorted(event.data['id'], tt['event_id'])
 
     tts = split_station(tt, station.data['id'])
-    #print tts
     for sid, (t, out) in enumerate(zip(tts, ttfiles)):
-        tt_table = eikonal.data.EKTTTable(t, sid, evnfile = evnfile, stafile = stafile)
+        tt_table = eikonal.data.EKTTTable(t, sid, evnfile=evnfile,
+                                          stafile=stafile)
         pickle.dump(tt_table, open(out, 'wb'),
-                        protocol = pickle.HIGHEST_PROTOCOL)
-
+                    protocol = pickle.HIGHEST_PROTOCOL)
 
 def SQLStation(target, source, env):
     """

@@ -24,7 +24,10 @@ from eikonal.data import ev_dtype, st_dtype, tt_dtype
 
 
 def np_load(*args, **kwargs):
-    return lambda *a, **k: np.load(*a, allow_pickle=True, **k)
+    if 'allow_pickle' in kwargs.keys():
+        return np.load(*args, **kwargs)
+    else:
+        return np.load(*args, allow_pickle=True, **kwargs)
 
 
 def init_model_array(dbfile, dbgroup, catname, efilters):
@@ -163,9 +166,10 @@ def H5FTT(target, source, env):
     for tt in ttarys:
         sid = stary['id'][tt['station_id']]
         filename = ftemplate.substitute(sid=sid, ptype=ptype)
-        tt_table = eikonal.data.EKTTTable(tt['ary'], tt['station_id'], evnfile=evfile, stafile=stfile)
+        tt_table = eikonal.data.EKTTTable(tt['ary'], tt['station_id'],
+                                          evnfile=evfile, stafile=stfile)
         pickle.dump(tt_table, open(filename, 'wb'),
-                        protocol=pickle.HIGHEST_PROTOCOL)
+                    protocol=pickle.HIGHEST_PROTOCOL)
 
 
 def H5FEmitter(target, source, env):
@@ -182,13 +186,12 @@ def H5FEmitter(target, source, env):
     stargets = []
     for tt in ttarys:
         sid = stary['id'][tt['station_id']]
-        filename = ftemplate.substitute(sid = sid, ptype = ptype)
+        filename = ftemplate.substitute(sid=sid, ptype=ptype)
         stargets.append(filename)
-
 
     if len(stargets) == 0:
         if logger.tools.isEnabledFor(logger.CRITICAL):
-            logger.tools.critical("No traveltime extracted." \
+            logger.tools.critical("No traveltime extracted."
                                   " Bad filter(s) ?")
 
     return target + stargets, source
@@ -239,24 +242,26 @@ def FetchDBAction(source, target, env):
         for tt in ttarys:
             sid = stary['id'][tt['station_id']]
             filename = ftemplate.substitute(sid=sid, ptype=ptype)
-            tt_table = eikonal.data.EKTTTable(tt['ary'], tt['station_id'], evnfile=evfile, stafile=stfile)
+            tt_table = eikonal.data.EKTTTable(tt['ary'], tt['station_id'],
+                                              evnfile=evfile, stafile=stfile)
             pickle.dump(tt_table, open(filename, 'wb'),
-                        protocol = pickle.HIGHEST_PROTOCOL)
+                        protocol=pickle.HIGHEST_PROTOCOL)
 
 
 def generate(env):
-    H5FEventAction = Action(H5FEvent, strfunction = logger.default_strfun("Fetch Event from H5F DB"))
-    H5FStationAction = Action(H5FStation, strfunction = logger.default_strfun("Fetch Station from H5F DB"))
+    H5FEventAction = Action(H5FEvent, strfunction=logger.default_strfun("Fetch Event from H5F DB"))
+    H5FStationAction = Action(H5FStation, strfunction=logger.default_strfun("Fetch Station from H5F DB"))
 
-    H5FTraveltimeAction = Action(H5FTT, strfunction = logger.default_strfun("Fetch Traveltime from H5F DB"))
+    H5FTraveltimeAction = Action(H5FTT, strfunction=logger.default_strfun("Fetch Traveltime from H5F DB"))
     env['BUILDERS']['FetchDB'] = \
-            Builder(action = Action(FetchDBAction,
-                                    strfunction = logger.default_strfun("Fetch Database")), 
-                    emitter = DBEmitter)
+            Builder(action=Action(FetchDBAction,
+                                  strfunction=logger.default_strfun("Fetch Database")),
+                    emitter=DBEmitter)
 
-    env['BUILDERS']['H5FFetchEvent'] = Builder(action = H5FEventAction)
-    env['BUILDERS']['H5FFetchStation'] = Builder(action = H5FStationAction)
-    env['BUILDERS']['H5FFetchTraveltime'] = Builder(action = H5FTraveltimeAction, emitter = H5FEmitter)
+    env['BUILDERS']['H5FFetchEvent'] = Builder(action=H5FEventAction)
+    env['BUILDERS']['H5FFetchStation'] = Builder(action=H5FStationAction)
+    env['BUILDERS']['H5FFetchTraveltime'] = Builder(action=H5FTraveltimeAction,
+                                                    emitter=H5FEmitter)
 
 
 def exists(env):

@@ -15,11 +15,12 @@ matplotlib = "^3.5.1"
 pytz = "^2021.3"
 Mako = "^1.1.6"
 Cython = "^0.29.28"
-numpy = "^1.18.0"
+numpy = "1.21.5"
 scipy = "^1.8.0"
 eikonal = {path = 'libraries/eikonal', develop = true}
 agstd = {path = 'libraries/agstd', develop = true}
 tables = "^3.7.0"
+ipdb = "^0.13.9"
 
 [tool.poetry.dev-dependencies]
 ipython = "^8.0.1"

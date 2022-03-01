@@ -19,7 +19,10 @@ import logger
 
 
 def np_load(*args, **kwargs):
-    return lambda *a, **k: np.load(*a, allow_pickle=True, **k)
+    if 'allow_pickle' in kwargs.keys():
+        return np.load(*args, **kwargs)
+    else:
+        return np.load(*args, allow_pickle=True, **kwargs)
 
 
 def HomogenousGridAction(source, target, env):
@@ -49,6 +52,7 @@ def HomogenousGridFromGridDescription(source, target, env):
     grid = grid_description.gen_homogeneous_grid(fill_value)
     pickle.dump(grid, open(outfile, 'wb'), protocol = pickle.HIGHEST_PROTOCOL)
 
+
 def HomogenousGridLike(source, target, env):
     """
     """
@@ -56,22 +60,20 @@ def HomogenousGridLike(source, target, env):
     fill_value = source[1].value
     outfile = str(target[0])
 
-    outgrid = eikonal.data.EKImageData(grid.shape, grid.spacing, origin = grid.origin)
+    outgrid = eikonal.data.EKImageData(grid.shape, grid.spacing, origin=grid.origin)
     outgrid.data.fill(fill_value)
 
-    pickle.dump(outgrid, open(outfile, 'wb'), protocol = pickle.HIGHEST_PROTOCOL)
-
-
+    pickle.dump(outgrid, open(outfile, 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
 
 
 def generate(env):
     env['BUILDERS']['HomogenousGrid'] = \
-            Builder(action = Action(HomogenousGridAction,
-                                    strfunction = logger.default_strfun("Homogeneous Grid")))
+            Builder(action=Action(HomogenousGridAction,
+                                  strfunction=logger.default_strfun("Homogeneous Grid")))
 
     env['BUILDERS']['HomogenousGrid2'] = \
-            Builder(action = Action(HomogenousGridFromGridDescription,
-                                    strfunction = logger.default_strfun("Homogeneous Grid")))
+            Builder(action=Action(HomogenousGridFromGridDescription,
+                                  strfunction=logger.default_strfun("Homogeneous Grid")))
 
     env['BUILDERS']['HomogenousGridLike'] = \
             Builder(action = Action(HomogenousGridLike,

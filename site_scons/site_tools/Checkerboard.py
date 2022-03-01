@@ -16,7 +16,10 @@ import numpy as np
 
 
 def np_load(*args, **kwargs):
-    return lambda *a, **k: np.load(*a, allow_pickle=True, **k)
+    if 'allow_pickle' in kwargs.keys():
+        return np.load(*args, **kwargs)
+    else:
+        return np.load(*args, allow_pickle=True, **kwargs)
 
 
 def CheckerboardAction(target, source, env):

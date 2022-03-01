@@ -8,12 +8,12 @@
 __doc__ = """
 :platform: Unix
 
-Slopes is a high level API aim for object-oriented multiple inversion. \
-        If you only learn one API it should probably be the easiest and almost\
-        everything is accessible within this API. The main idea is to provide\
-        an easily manageable objects instead of low level SCons targets since\
-        the number of target can grow very fast. The main interfaces is the \
-        InversionPlan which is basically an inversion tree controlling the \
+Slopes is a high level API aim for object-oriented multiple inversion.
+        If you only learn one API it should probably be the easiest and almost
+        everything is accessible within this API. The main idea is to provide
+        an easily manageable objects instead of low level SCons targets since
+        the number of target can grow very fast. The main interfaces is the
+        InversionPlan which is basically an inversion tree controlling the
         inversion flow.
 
 .. moduleauthor:: Jean-Pascal Mercier <jean-pascal.mercier@agsis.com>
@@ -22,9 +22,10 @@ API Description
 ------------------
 
 .. autoclass:: InversionPlan2
-    :members: __init__, insert_velocity_grid, insert_velocity_grid_desc, \
-            set_grid_inversion, set_double_difference, set_event_time_correction, \
-            set_station_time_correction, set_event_position_correction, push_inversion
+    :members: __init__, insert_velocity_grid, insert_velocity_grid_desc,
+            set_grid_inversion, set_double_difference, 
+            set_event_time_correction, set_station_time_correction, 
+            set_event_position_correction, push_inversion
 
 .. autoclass:: SQLDBFetchPlan
     :members: set_cuboid_filter, set_date_filter, fetch_traveltime,\
@@ -44,26 +45,17 @@ import os
 import SCons.Script
 import SCons.Node
 import weakref
-
 from agstd.decorators import memoize, deprecated
-
 import copy
-
 import eikonal.data
-
 import numpy as np
 import logger
-
 import string
-
 import dbfilter
-
+from SCons.Script import Action
+import pickle
 import logging
 log = logging.getLogger("tools.Slopes")
-
-from SCons.Script import Action
-
-import pickle
 
 
 def exprange(p, max_value, min_value, size=30):
@@ -83,15 +75,18 @@ def UniformWeighting():
     """
     return dict(name = "uniform", args = [])
 
+
 def GaussianWeighting(sigma):
     """
     """
     return dict(name = "gaussian", args = [sigma])
 
+
 def BoxWeighting(sigma):
     """
     """
     return dict(name = "box", args = [sigma])
+
 
 def InfoFct(target, source, env):
         rfile = str(source[0])
@@ -103,12 +98,15 @@ def InfoFct(target, source, env):
             std = np.std(R)
             rms = np.average(np.sqrt(R ** 2))
 
-        log_description = dict(residual = dict(average = avg, stdev = std, rms = rms),
-                               ntraveltime = R.size)
+        log_description = dict(residual = dict(average=avg, stdev=std,
+                                               rms=rms),
+                               ntraveltime=R.size)
         log_description.update(node_dict)
         logger.structured.info(json.dumps(log_description))
 
+
 InfoAction = Action(InfoFct, strfunction = lambda x, y, z : "")
+
 
 class InversionDescription(object):
     def __init__(self):
@@ -118,6 +116,7 @@ class InversionDescription(object):
         self.station_time       = False
         self.event_position     = False
 
+
 class TreeNode(object):
     """
     Simple representation of a node in Tree
@@ -126,14 +125,15 @@ class TreeNode(object):
     inherited_collections = ['vgrids']
 
     __uid_generator__ = __uid_generator__()
-    def __init__(self, parent = None, **kw):
-        self.uid =self.__uid_generator__.next()
+
+    def __init__(self, parent=None, **kw):
+        self.uid = next(self.__uid_generator__)
         self.__dict__.update(kw)
         self.childs = []
         self.tag = None
-        self.idescription = dict(grids = [], double_difference = False,
-                                 event_time = False, station_time = False,
-                                 event_position = False)
+        self.idescription = dict(grids=[], double_difference=False,
+                                 event_time=False, station_time=False,
+                                 event_position=False)
         self.__parent__ = weakref.ref(parent) if parent is not None else None
 
     def __get_parent__(self):
@@ -150,12 +150,15 @@ class TreeNode(object):
         self.childs.append(node)
         return node
 
+
 def __get_list_i__(i):
     def get(self):
         return self[i]
+
     def set(self, val):
         self[i] = val
-    return get,set
+    return get, set
+
 
 class VelocityContainer(list):
     def __init__(self, *args):
@@ -173,6 +176,7 @@ class VelocityContainer(list):
 frenames  = ['event_time', 'station_time', 'event_position']
 nodeattr  = ['events', 'stations', 'events']
 colnames  = ['delta_t', 'delta_t', 'position']
+
 
 class InversionResult(object):
     def __init__(self, env, result, stats, A, R, pdescription, D, P, I,
@@ -210,7 +214,8 @@ class InversionResult(object):
                 outfile = os.path.join(self.iroot, "%s_optimized.pickle" % c)
                 tgt = env.UpdateTable([outfile],
                                       [env.Value(c), env.Value(col), infile,
-                                       self.result_vector, self.pdescription])[0]
+                                       self.result_vector,
+                                       self.pdescription])[0]
                 setattr(node, inattr, tgt)
 
         # Traveltime Filtering
@@ -222,10 +227,12 @@ class InversionResult(object):
             next_tt_tgt = []
             for tt in vgrid.ttime_tgts:
                 basename = os.path.basename(str(tt))
-                filename = os.path.join(self.iroot, env['INVERSION_ROOT'],basename)
+                filename = os.path.join(self.iroot, env['INVERSION_ROOT'],
+                                        basename)
 
                 tgt = env.UpdateAndFilterTT([filename],
-                                            [tt, node.events, node.stations, vgrid.tgt, env.Value(1)])[0]
+                                            [tt, node.events, node.stations,
+                                             vgrid.tgt, env.Value(1)])[0]
                 next_tt_tgt.append(tgt)
 
             vgrid.ttime_tgts = next_tt_tgt
@@ -240,7 +247,8 @@ class InversionResult(object):
         dirname = os.path.join(self.iroot, env['INVERSION_ROOT'])
         etemplate = string.Template(env['FORWARD_EIKONAL_TEMPLATE'])
 
-        for gid, prior, smoothing, post_smoothing in self.idescription['grids']:
+        for gid, prior, smoothing, post_smoothing in \
+                self.idescription['grids']:
             vgrid = node.vgrids[gid]
 
             gname = gid + ".npy"
@@ -288,8 +296,8 @@ class InversionResult(object):
             next_ray_tgt = []
             for tt, etgt in zip(vgrid.ttime_tgts, vgrid.eikonal_tgts):
                 basename = os.path.basename(str(tt))
-                fbasename = ftemplate.substitute(basename = basename)
-                rbasename = rtemplate.substitute(basename = basename)
+                fbasename = ftemplate.substitute(basename=basename)
+                rbasename = rtemplate.substitute(basename=basename)
 
                 foutput = os.path.join(self.iroot, env['FORWARD_ROOT'],
                                        fbasename)
@@ -324,8 +332,8 @@ class QuadraticBuilderBase(object):
         self.env                        = env
         self.iroot                      = iroot
 
-    def inverse(self, weighting, gtol = 1e-10, prior_normalization = False,
-                itype = 'linearcg'):
+    def inverse(self, weighting, gtol = 1e-10, prior_normalization=False,
+                itype='linearcg'):
         """
         This is the actual building of the Quadratic Problem (Ax - r)^2 = 0.
         This also produce a dictionary of description describing the real
@@ -359,7 +367,6 @@ class QuadraticBuilderBase(object):
                                          env.Value(self.columns)] + self.prior)
         else:
             priors = self.prior
-
 
         D = env.BuildBlkMatrix([D_file], [desc_file] + self.regularization)[0]
         P = env.BuildBlkMatrix([P_file], [desc_file] + priors)[0]
@@ -442,7 +449,6 @@ class QuadraticBuilder(QuadraticBuilderBase):
             self.sensivity.extend(fre_tgt)
 
 
-
 class QATomoQuadraticBuilder(QuadraticBuilderBase):
     """
     """
@@ -469,7 +475,6 @@ class QATomoQuadraticBuilder(QuadraticBuilderBase):
                                          ray, env.Value(self.gid)])
             cross_fre.append(cs_tgt)
 
-
         naked_gridfile = os.path.join(self.iroot, "%s_data.npy" % self.gid)
         naked_grid = env.ExtractData([naked_gridfile], [self.grid])
 
@@ -480,11 +485,10 @@ class QATomoQuadraticBuilder(QuadraticBuilderBase):
         self.initial.append(naked_grid)
 
 
-
 class InversionPlan(object):
     """
-    This object keeps track of the complete inversion procedure and is in \
-    charge of building the corresponding SCons targets. The target are pushed \
+    This object keeps track of the complete inversion procedure and is in
+    charge of building the corresponding SCons targets. The targets are pushed
     onto a target stack and are easily accessible.
 
     :param env: Scons environment where target will be built
@@ -494,20 +498,19 @@ class InversionPlan(object):
     :returns: InversionPlan object
     """
     iroots = []
+
     def __init__(self, env, ev_tgt, st_tgt):
-        self.current            = TreeNode(events = ev_tgt, stations = st_tgt,
-                                           vgrids = {})
+        self.current = TreeNode(events=ev_tgt, stations=st_tgt, vgrids={})
 
-        self.tags               = {}
+        self.tags = {}
 
-        self.report_targets     = []
-        self.vgrids             = [{}]
+        self.report_targets = []
+        self.vgrids = [{}]
 
-        self.env                = env
-
+        self.env = env
 
         plan_action = Action(self.__plan_infos__,
-                             strfunction=lambda x, y, z : "")
+                             strfunction=lambda x, y, z: "")
         info_tgt = self.env.Command([env.Value("")], [], plan_action)
         env.AlwaysBuild(info_tgt)
         env.Default(info_tgt)
@@ -519,11 +522,9 @@ class InversionPlan(object):
         # Adding a pointer to the root node
         self.tag('root')
 
-
     @classmethod
     def from_fetch_plan(cls, fetch_plan):
         return cls(fetch_plan.env, fetch_plan.evnfile, fetch_plan.stafile)
-
 
     @staticmethod
     def __plan_infos__(target, source, env):
@@ -538,7 +539,6 @@ class InversionPlan(object):
         rtgt = self.env.Raytrace([routput], [grid, etgt, tt])[0]
         self.env.Depends(rtgt, [self.current.events, self.current.stations])
         return rtgt
-
 
     def insert_velocity_grid(self, gid, grid, tt_tgt, root='build', **kw):
         """
@@ -559,10 +559,11 @@ class InversionPlan(object):
             basename = os.path.basename(str(tt))
             filename = os.path.join(root, gid, basename)
             tgt = self.env.UpdateAndFilterTT([filename],
-                                        [tt, self.current.events,
-                                         self.current.stations, grid,
-                                         self.env.Value(1)])[0]
+                                             [tt, self.current.events,
+                                             self.current.stations, grid,
+                                             self.env.Value(1)])[0]
             filtered_tt.append(tgt)
+
         tt_tgt = filtered_tt
 
         eik_tgt, fre_tgt = self.env.ForwardModelling2(tt_tgt, grid, gid,
@@ -579,7 +580,7 @@ class InversionPlan(object):
         self.current.vgrids[gid] = VelocityContainer(grid, eik_tgt, fre_tgt,
                                                      tt_tgt, ray_tgt)
 
-        self.__push_report__(gid)
+        # self.__push_report__(gid)
 
     insert_velocity_grid_desc = insert_velocity_grid
 
@@ -618,8 +619,8 @@ class InversionPlan(object):
         .. note :: Since the double difference operation do not explicitly \
                 filter for events nearby, You should probably at least inverse \
                 for the velocity grid as well as the event position. This \
-                ensure distants events will be ponderate by the tomography \
-                between them and more precisely inversed.
+                ensure distant events will be weighted by the tomography \
+                between them and more precisely inverted.
         """
         self.current.idescription['double_difference'] = dd
 
@@ -726,7 +727,7 @@ class InversionPlan(object):
 
         self.report_targets.extend(cr)
 
-    def push_inversion(self, iroot, gtol = 1e-10, weighting=UniformWeighting(),
+    def push_inversion(self, iroot, gtol=1e-10, weighting=UniformWeighting(),
                        report=False, prior_normalization=False,
                        itype='linearcg'):
         """
@@ -777,7 +778,6 @@ class InversionPlan(object):
         self.__log_inversion__(iroot, iresult.idescription,
                                iresult.residual_vector)
 
-
         self.current.istats     = istats
         self.current            = self.current.add_new_child()
         self.current.residuals  = R
@@ -820,10 +820,12 @@ class InversionPlan(object):
 
         :returns: list of ray targets
         """
-        grid, eik_tgt, fre_tgt, tt_tgt, ray_tgt, gdesc = self.current.vgrids[gid]
+        grid, eik_tgt, fre_tgt, tt_tgt, ray_tgt, \
+        gdesc = self.current.vgrids[gid]
         return ray_tgt
 
-    def tomography_qa(self, gid, sigma, ivalue, variation, gtol = 1e-10, root = 'build', itype = 'linearcg'):
+    def tomography_qa(self, gid, sigma, ivalue, variation, gtol=1e-10,
+                      root='build', itype='linearcg'):
         """
         """
 
@@ -835,20 +837,22 @@ class InversionPlan(object):
         grid = env.HomogenousGridLike([gridfile], [grid,
                                                    env.Value(ivalue)])
 
-        cboard = env.CheckerboardLike([os.path.join(root, 'checkerboard_%s.pickle' % gid)],
-                                      [grid, env.Value(sigma), env.Value(ivalue),
+        cboard = env.CheckerboardLike([os.path.join(root,
+                                          f'checkerboard_{gid}.pickle')],
+                                      [grid, env.Value(sigma),
+                                       env.Value(ivalue),
                                        env.Value(variation)])
 
         iroot = os.path.join(root, "qa_%s" % (gid,))
-        qbuilder = QATomoQuadraticBuilder(env, iroot, grid, cboard, vgrid, gid, sigma / 2.0)
+        qbuilder = QATomoQuadraticBuilder(env, iroot, grid, cboard, vgrid,
+                                          gid, sigma / 2.0)
         qbuilder.process_cross_velocity_inversion()
         iresult = qbuilder.inverse(UniformWeighting(), gtol,
-                                   prior_normalization = False, itype = itype)
+                                   prior_normalization=False, itype=itype)
         node = self.current.add_new_child()
 
         iresult.update_velocity(node)
         grid = node.vgrids[gid][0]
-
 
         return grid
 
@@ -874,11 +878,12 @@ class DBFetchPlan(object):
 
     def __check_builded__(self):
         if self.builded:
-            raise TypeError("The object is already builded. cannot apply filter anymore")
+            raise TypeError("The object is already built. "
+                            "cannot apply filter anymore")
 
     def set_cuboid_filter(self, origin, length):
         """
-        This method will keeps only the events inside the given cube
+        This method will keep only the events inside the given cube
         parameters.
 
         :param origin: 3-tuple representing the origin of the cube.
@@ -909,7 +914,8 @@ class DBFetchPlan(object):
         """
         self.__check_builded__()
         self.set_cuboid_filter([o + grid.padding for o in grid.origin],
-                               [(s - 1) * (grid.spacing) - grid.padding  for s in grid.shape])
+                               [(s - 1) * grid.spacing - grid.padding
+                                for s in grid.shape])
 
     def set_date_filter(self, fromdate, todate):
         """
@@ -924,15 +930,16 @@ class DBFetchPlan(object):
         self.__check_builded__()
         self.filters['date'] = dbfilter.DateFilter(fromdate, todate)
 
-    def additive_gaussian_noise(self, event_time = None, station_time = None,
-                                event_position = None, event_file = 'build/noisy_event.pickle',
-                                station_file = 'build/noisy_station.pickle'):
+    def additive_gaussian_noise(self, event_time=None, station_time=None,
+                                event_position=None,
+                                event_file='build/noisy_event.pickle',
+                                station_file='build/noisy_station.pickle'):
+
         if station_time is not None:
             stafile = self.stafile
-            self.__statgt__ = self.env.AdditiveGaussianNoise([station_file],
-                                                              [stafile,
-                                                               self.env.Value(['delta_t']),
-                                                               self.env.Value([station_time])])[0]
+            self.__statgt__ = self.env.AdditiveGaussianNoise(
+                [station_file], [stafile, self.env.Value(['delta_t']),
+                                 self.env.Value([station_time])])[0]
         evcol = []
         evstd = []
         if event_time is not None:
@@ -943,10 +950,9 @@ class DBFetchPlan(object):
             evstd += [event_position]
         if len(evcol) != 0:
             evnfile = self.evnfile
-            self.__evntgt__ = self.env.AdditiveGaussianNoise([event_file],
-                                                              [evnfile,
-                                                               self.env.Value(evcol),
-                                                               self.env.Value(evstd)])[0]
+            self.__evntgt__ = self.env.AdditiveGaussianNoise(
+                [event_file], [evnfile, self.env.Value(evcol),
+                               self.env.Value(evstd)])[0]
 
 
 class H5FDBFetchPlan(DBFetchPlan):
@@ -956,9 +962,10 @@ class H5FDBFetchPlan(DBFetchPlan):
 
     def __fetch_event__(self):
         if self.__evntgt__ is None:
-            self.__evntgt__ = self.env.H5FFetchEvent([self.__evnfile__],
-                                                     [self.db, self.env.Value(self.group), self.env.Value(self.catalog),
-                                                      self.env.Value(self.filters.values())])[0]
+            self.__evntgt__ = self.env.H5FFetchEvent(
+                [self.__evnfile__], [self.db, self.env.Value(self.group),
+                                     self.env.Value(self.catalog),
+                                     self.env.Value(self.filters.values())])[0]
             self.builded = True
         return self.__evntgt__
     evnfile = property(__fetch_event__)
@@ -966,9 +973,10 @@ class H5FDBFetchPlan(DBFetchPlan):
 
     def __fetch_station__(self):
         if self.__statgt__ is None:
-            self.__statgt__ = self.env.H5FFetchStation([self.__stafile__],
-                                                       [self.db, self.env.Value(self.group), self.env.Value(self.catalog),
-                                                        self.env.Value(self.filters.values())])[0]
+            self.__statgt__ = self.env.H5FFetchStation(
+                [self.__stafile__], [self.db, self.env.Value(self.group),
+                                     self.env.Value(self.catalog),
+                                     self.env.Value(self.filters.values())])[0]
             self.builded = True
         return self.__statgt__
     stafile = property(__fetch_station__)
@@ -1053,9 +1061,12 @@ class GridDescription(object):
     :param env: The environment where the targets are built
     :param origin: Tuple defining the origin of the grid
     :param shape: Tuple defining the shape of the grid
+    :param spacing: The spacing of the grid, the grid must be a regular grid,
+    i.e., that the spacing must be the same in every direction
     :param padding:
     """
-    def __init__(self, env, origin, shape, spacing, padding = None):
+    def __init__(self, env, origin: tuple, shape: tuple,
+                 spacing: int, padding=None):
         self.padding = spacing * 1.5 if padding is None else padding
         if len(origin) != len(shape):
             raise ValueError("Shape and Origin must have the same length")
@@ -1104,28 +1115,31 @@ class GridDescription(object):
 
     def get_checkerboard(self, output, sigma, central_velocity, variation):
         """
-        This method create a checkerboard relating with the size and the spacing
-        defined in the grid.
+        This method create a checkerboard relating with the size and the
+        spacing defined in the grid.
 
 
         :param output: This is the output file for the checkerboard
         :param sigma: The std deviation of the gaussian for the checkerboard
-        :param central_velocity: The median value of the velocity for the \
+        :param central_velocity: The median value of the velocity for the
                 checkerboard
-        :param variation: The variation in percentage of the central \
-                velocity between the lowest and the highest velocity of the grid.
+        :param variation: The variation in percentage of the central
+                velocity between the lowest and the highest velocity of the
+                grid.
 
         :returns: A target checkerboard
         """
         env = self.env
         return env.Checkerboard([output],
-                                [env.Value(self.shape), env.Value(self.spacing),
-                                 env.Value(sigma), env.Value(central_velocity),
+                                [env.Value(self.shape),
+                                 env.Value(self.spacing),
+                                 env.Value(sigma),
+                                 env.Value(central_velocity),
                                  env.Value(variation)])
 
     def get_homogeneous_grid(self, output, value):
         """
-        This method creates an homogeneous grid of the size and sacing of the\
+        This method creates an homogeneous grid of the size and spacing of the
         underlying grid.
 
         :param output: Filename for the output homogeneous grid
@@ -1134,7 +1148,7 @@ class GridDescription(object):
         :returns: An homogeneous grid
         """
         return self.env.HomogenousGrid2([output], [self.env.Value(self),
-                                                  self.env.Value(value)])[0]
+                                                   self.env.Value(value)])[0]
 
     def __descr__(self):
         return "<GridDescription origin=%s shape=%s spacing=%d>" % \
@@ -1144,17 +1158,17 @@ class GridDescription(object):
         return self.__descr__()
 
     def gen_homogeneous_grid(self, value):
-        grid = eikonal.data.EKImageData(self.shape, spacing = self.spacing, origin = self.origin)
+        grid = eikonal.data.EKImageData(self.shape, spacing=self.spacing,
+                                        origin=self.origin)
         grid.data.fill(value)
         return grid
-
 
 
 __doc__ += \
 """
 Example Usage : SConstruct
 --------------------------
-.. note :: This example can be found in the examples directory under the\
+.. note :: This example can be found in the examples directory under the
         name slopes/SConstruct. To try it just cd in the directory and call
         make.
 .. literalinclude:: ../examples/slopes/SConstruct

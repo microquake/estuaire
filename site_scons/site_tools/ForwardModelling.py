@@ -18,7 +18,10 @@ from SCons.Script import Builder, Execute, Mkdir
 
 
 def np_load(*args, **kwargs):
-    return lambda *a, **k: np.load(*a, allow_pickle=True, **k)
+    if 'allow_pickle' in kwargs.keys():
+        return np.load(*args, **kwargs)
+    else:
+        return np.load(*args, allow_pickle=True, **kwargs)
 
 
 def generate(env):
@@ -55,7 +58,6 @@ def generate(env):
             etarget = env.EikonalSolver([efile], [gridfile, pos, spacing])[0]
             ftarget = env.Sensivity([ffile], [gridfile, efile, tt])[0]
             atargets.append(ftarget)
-
 
         return atargets
 

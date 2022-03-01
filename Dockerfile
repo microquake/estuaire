@@ -15,7 +15,8 @@ RUN apt-get update \
     && . /venv/estuaire/bin/activate \
     && pip install poetry \
     && poetry config virtualenvs.create false --local \
-    && apt install git -y
+    && apt install git -y \
+    && apt install vim -y
 
 RUN . /venv/estuaire/bin/activate \
     && cd /estuaire && git submodule init && poetry install\
